@@ -2,8 +2,10 @@ export interface PexelsItem {
   id: string
   title: string
   photo: string
+  photoDownLink?: string
   photoWidth: number
   photoHeight: number
+  photoType?: string
   author: string
   avatar: string
 }

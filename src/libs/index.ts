@@ -5,7 +5,7 @@ interface MaterialModule {
 }
 
 const materialModules = import.meta.glob<MaterialModule>(
-  ['./*/index.vue', '!./confirm/index.vue'],
+  ['./*/index.vue', '!./confirm/index.vue', '!./message/index.vue'],
   {
     eager: true
   }

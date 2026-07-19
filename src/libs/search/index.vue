@@ -137,7 +137,7 @@ function search() {
       <div
         v-if="isDropdownOpen"
         :id="dropdownId"
-        class="absolute top-[54px] left-0 z-30 max-h-[368px] w-full overflow-auto rounded-[12px] border border-zinc-200 bg-white p-[8px] text-sm shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
+        class="app-scrollbar absolute top-[54px] left-0 z-30 max-h-[368px] w-full overflow-auto rounded-[12px] border border-zinc-200 bg-white p-[8px] text-sm shadow-xl dark:border-zinc-700 dark:bg-zinc-900"
         role="listbox"
       >
         <slot name="dropdown" :query="query" :close="closeDropdown" :search="search" />

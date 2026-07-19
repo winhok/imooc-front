@@ -5,7 +5,7 @@ defineOptions({ name: 'LayoutMain' })
 </script>
 
 <template>
-  <main class="min-h-0 overflow-auto">
+  <main class="app-scrollbar min-h-0 overflow-auto">
     <RouterView />
   </main>
 </template>

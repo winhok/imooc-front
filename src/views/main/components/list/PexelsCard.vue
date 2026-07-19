@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
+import { useFullscreen } from '@vueuse/core'
 
+import { message } from '@/libs/message'
 import type { PexelsItem } from '@/types/pexels'
 import { colorFromString } from '@/utils/color'
+
+import { useImageDownload } from './useImageDownload'
 
 defineOptions({ name: 'PexelsCard' })
 
@@ -14,36 +18,82 @@ interface Props {
 const props = defineProps<Props>()
 
 const placeholderColor = computed(() => colorFromString(props.item.id))
+const preview = useTemplateRef<HTMLElement>('preview')
+const { isFullscreen, isSupported, enter, exit } = useFullscreen(preview, { autoExit: true })
+const { isDownloading, downloadImage } = useImageDownload()
+
+async function openFullscreen() {
+  if (!isSupported.value) {
+    message.warning('当前浏览器不支持全屏展示')
+    return
+  }
+
+  try {
+    await enter()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '无法进入全屏模式')
+  }
+}
+
+async function closeFullscreen() {
+  try {
+    await exit()
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '无法退出全屏模式')
+  }
+}
 </script>
 
 <template>
   <article
     class="h-full overflow-hidden rounded-[12px] bg-white shadow-sm ring-1 ring-black/5 transition-[background-color,box-shadow] duration-300 hover:shadow-md dark:bg-zinc-900 dark:ring-white/10 xl:dark:bg-zinc-900"
   >
-    <div class="group relative w-full cursor-zoom-in overflow-hidden rounded-t-[12px]">
+    <div
+      ref="preview"
+      class="group relative grid w-full overflow-hidden rounded-t-[12px] bg-zinc-950"
+      :class="isFullscreen ? 'h-dvh place-items-center rounded-none' : ''"
+    >
       <MLazyImage
         :src="item.photo"
         :alt="item.title"
         :width="item.photoWidth"
         :height="item.photoHeight"
-        :display-height="imageHeight"
-        :placeholder-color="placeholderColor"
+        :display-height="isFullscreen ? '100dvh' : imageHeight"
+        :placeholder-color="isFullscreen ? '#09090b' : placeholderColor"
+        :fit="isFullscreen ? 'contain' : 'cover'"
       />
 
       <div
-        class="pointer-events-none absolute inset-0 hidden bg-zinc-950/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100 motion-reduce:transition-none xl:block"
-        aria-hidden="true"
+        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/55 via-transparent to-transparent transition-opacity duration-200 motion-reduce:transition-none xl:opacity-0 xl:group-focus-within:opacity-100 xl:group-hover:opacity-100"
       >
-        <span
-          class="absolute top-[10px] left-[10px] rounded-[8px] bg-red-500 px-[12px] py-[7px] text-[12px] font-medium text-white"
+        <div
+          class="pointer-events-auto absolute right-[8px] bottom-[8px] flex items-center gap-[6px] xl:right-[10px] xl:bottom-[10px]"
         >
-          分享
-        </span>
-        <span
-          class="absolute right-[10px] bottom-[10px] rounded-[8px] bg-white/90 px-[10px] py-[7px] text-[12px] font-medium text-zinc-900"
-        >
-          查看大图
-        </span>
+          <button
+            type="button"
+            class="grid size-[34px] place-items-center rounded-[9px] bg-white/90 text-zinc-900 shadow-sm transition-[background-color,transform] hover:bg-white focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none active:scale-95 motion-reduce:transition-none xl:size-[38px]"
+            :aria-label="`下载图片：${item.title}`"
+            :disabled="isDownloading"
+            :aria-busy="isDownloading"
+            @click="downloadImage(item)"
+          >
+            <span
+              v-if="isDownloading"
+              class="size-[16px] animate-spin rounded-full border-2 border-current border-r-transparent motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+            <MSvgIcon v-else name="download" :size="18" />
+          </button>
+
+          <button
+            type="button"
+            class="grid size-[34px] place-items-center rounded-[9px] bg-white/90 text-zinc-900 shadow-sm transition-[background-color,transform] hover:bg-white focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none active:scale-95 motion-reduce:transition-none xl:size-[38px]"
+            :aria-label="isFullscreen ? `退出全屏：${item.title}` : `全屏查看：${item.title}`"
+            @click="isFullscreen ? closeFullscreen() : openFullscreen()"
+          >
+            <MSvgIcon :name="isFullscreen ? 'close' : 'fullscreen'" :size="18" />
+          </button>
+        </div>
       </div>
     </div>
 

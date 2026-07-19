@@ -10,14 +10,16 @@ interface Props {
   alt: string
   width: number
   height: number
-  displayHeight?: number
+  displayHeight?: number | string
   placeholderColor?: string
   rootMargin?: string
+  fit?: 'cover' | 'contain'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholderColor: '#e4e4e7',
-  rootMargin: '320px 0px'
+  rootMargin: '320px 0px',
+  fit: 'cover'
 })
 
 const wrapper = useTemplateRef<HTMLElement>('wrapper')
@@ -27,9 +29,14 @@ const hasError = shallowRef(false)
 
 const wrapperStyle = computed<CSSProperties>(() => ({
   width: '100%',
-  height: `${Math.max(0, props.displayHeight ?? props.height)}px`,
+  height:
+    typeof props.displayHeight === 'string'
+      ? props.displayHeight
+      : `${Math.max(0, props.displayHeight ?? props.height)}px`,
   backgroundColor: props.placeholderColor
 }))
+
+const imageFitClass = computed(() => (props.fit === 'contain' ? 'object-contain' : 'object-cover'))
 
 const { stop } = useIntersectionObserver(
   wrapper,
@@ -61,8 +68,8 @@ function handleError() {
       :alt="alt"
       :width="width"
       :height="height"
-      class="size-full object-cover opacity-0 transition-opacity duration-300 motion-reduce:transition-none"
-      :class="isLoaded ? 'opacity-100' : ''"
+      class="size-full opacity-0 transition-opacity duration-300 motion-reduce:transition-none"
+      :class="[imageFitClass, isLoaded ? 'opacity-100' : '']"
       loading="lazy"
       decoding="async"
       @load="handleLoad"
