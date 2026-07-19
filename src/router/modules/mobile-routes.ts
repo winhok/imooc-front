@@ -8,6 +8,7 @@ export const mobileRoutes = [
     path: '/',
     name: 'home',
     component: () => import('@/views/main/index.vue'),
+    meta: { keepAlive: true, taskRoot: true, taskViewName: 'MainView' },
     children: [
       {
         path: 'pins/:id',

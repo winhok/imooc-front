@@ -12,6 +12,9 @@ declare module 'vue' {
     MPopover: (typeof import('@/libs/popover/index.vue'))['default']
     MSearch: (typeof import('@/libs/search/index.vue'))['default']
     MSvgIcon: (typeof import('@/libs/svg-icon/index.vue'))['default']
+    MTransitionRouterView: (typeof import('@/libs/transition-router-view/index.vue'))['default']
+    MTriggerMenu: (typeof import('@/libs/trigger-menu/index.vue'))['default']
+    MTriggerMenuItem: (typeof import('@/libs/trigger-menu-item/index.vue'))['default']
     MWaterfall: (typeof import('@/libs/waterfall/index.vue'))['default']
   }
 }

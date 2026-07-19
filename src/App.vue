@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { watch } from 'vue'
-import { RouterView } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
 import { THEME_DARK } from '@/constants'
@@ -19,5 +18,5 @@ watch(
 </script>
 
 <template>
-  <RouterView />
+  <MTransitionRouterView />
 </template>

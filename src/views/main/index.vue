@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+
+import { message } from '@/libs/message'
+import { useUserStore } from '@/stores'
+import { isMobileTerminal } from '@/utils/flexible'
 
 import NavigationBar from './components/navigation/index.vue'
 import PexelsList from './components/list/index.vue'
@@ -8,18 +13,41 @@ import PexelsList from './components/list/index.vue'
 defineOptions({ name: 'MainView' })
 
 const route = useRoute()
+const userStore = useUserStore()
+const { isAuthenticated } = storeToRefs(userStore)
 const isPinsOpen = computed(() => route.name === 'pins')
+const accountDestination = computed(() =>
+  isAuthenticated.value ? { name: 'profile' } : { name: 'login' }
+)
+const accountLabel = computed(() => (isAuthenticated.value ? '我的' : '登录'))
+
+function openVip() {
+  message.info('会员升级功能暂未开放')
+}
 </script>
 
 <template>
   <div
     class="min-h-full bg-zinc-50 transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-950"
   >
-    <div :inert="isPinsOpen || undefined" :aria-hidden="isPinsOpen || undefined">
+    <div
+      class="pb-[calc(92px+env(safe-area-inset-bottom))] xl:pb-0"
+      :inert="isPinsOpen || undefined"
+      :aria-hidden="isPinsOpen || undefined"
+    >
       <NavigationBar />
       <div class="mx-auto w-full max-w-[1600px] px-[12px] pt-[12px] xl:px-[32px] xl:pt-[24px]">
         <PexelsList />
       </div>
+
+      <MTriggerMenu
+        v-if="isMobileTerminal"
+        class="fixed right-1/2 bottom-[max(16px,env(safe-area-inset-bottom))] z-40 translate-x-1/2"
+      >
+        <MTriggerMenuItem icon="home" label="首页" to="/" active />
+        <MTriggerMenuItem icon="crown" label="VIP" @click="openVip" />
+        <MTriggerMenuItem icon="profile" :label="accountLabel" :to="accountDestination" />
+      </MTriggerMenu>
     </div>
 
     <Teleport to="body">
