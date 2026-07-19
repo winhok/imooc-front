@@ -1,1 +1,29 @@
-// Project-wide Sass variables, mixins, and global styles belong here.
+:root {
+  color: #18181b;
+  background: #f4f4f5;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  // The course's 10-column mobile REM system, capped for tablets and desktop.
+  font-size: min(10vw, 40px);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}

@@ -1,1 +1,18 @@
 @import 'tailwindcss';
+
+@theme {
+  --text-xs: 0.3rem;
+  --text-xs--line-height: 0.42rem;
+  --text-sm: 0.36rem;
+  --text-sm--line-height: 0.5rem;
+  --text-base: 0.44rem;
+  --text-base--line-height: 0.6rem;
+  --text-lg: 0.54rem;
+  --text-lg--line-height: 0.7rem;
+  --text-xl: 0.64rem;
+  --text-xl--line-height: 0.8rem;
+}
+
+@utility shadow-left-white {
+  box-shadow: -12px 0 12px rgb(255 255 255 / 0.96);
+}
