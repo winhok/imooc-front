@@ -35,7 +35,12 @@ async function onMenuClick(item: MenuItem) {
   isMenuOpen.value = false
 
   if (item.id !== 'logout') {
-    message.info(item.id === 'profile' ? '个人资料将在下一章实现' : '会员升级功能暂未开放')
+    if (item.id === 'profile') {
+      await router.push({ name: 'profile' })
+      return
+    }
+
+    message.info('会员升级功能暂未开放')
     return
   }
 

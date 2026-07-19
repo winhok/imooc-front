@@ -9,6 +9,7 @@ import {
   type LoginCredentials,
   type UserProfile
 } from '@/api/auth'
+import { updateUserProfile } from '@/api/profile'
 import { LOGIN_TYPE_USERNAME, USER_TOKEN_STORAGE_KEY } from '@/constants'
 import { encodeLegacyPassword } from '@/utils/legacy-password'
 
@@ -76,6 +77,12 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function updateProfile(nextProfile: UserProfile) {
+    await updateUserProfile(nextProfile)
+    profile.value = nextProfile
+    return nextProfile
+  }
+
   return {
     token,
     profile,
@@ -85,6 +92,7 @@ export const useUserStore = defineStore('user', () => {
     loadProfile,
     login,
     register,
+    updateProfile,
     initialize
   }
 })

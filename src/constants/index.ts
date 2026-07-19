@@ -40,3 +40,8 @@ export const SEARCH_HISTORY_LIMIT = 10
 
 export const USER_TOKEN_STORAGE_KEY = 'imooc-front:user-token'
 export const LOGIN_TYPE_USERNAME = 'username'
+
+export const OSS_REGION = import.meta.env.VITE_OSS_REGION || 'oss-cn-beijing'
+export const OSS_BUCKET = import.meta.env.VITE_OSS_BUCKET || 'imooc-front'
+export const AVATAR_MAX_FILE_SIZE = 5 * 1024 * 1024
+export const AVATAR_OUTPUT_SIZE = 512
