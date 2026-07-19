@@ -24,10 +24,7 @@ const sliderStyle = computed<CSSProperties>(() => ({
   transform: `translateX(${sliderMetrics.value.left}px)`
 }))
 
-function setCategoryRef(
-  categoryId: string,
-  element: Element | ComponentPublicInstance | null
-) {
+function setCategoryRef(categoryId: string, element: Element | ComponentPublicInstance | null) {
   if (element instanceof HTMLElement) {
     categoryElements.set(categoryId, element)
   } else {
@@ -66,9 +63,7 @@ function selectCategory(category: Category) {
 watch(
   [() => props.data, selectedCategoryId],
   () => {
-    if (
-      !props.data.some((category) => category.id === selectedCategoryId.value)
-    ) {
+    if (!props.data.some((category) => category.id === selectedCategoryId.value)) {
       selectedCategoryId.value = props.data[0]?.id ?? ''
     }
 
@@ -81,9 +76,7 @@ useResizeObserver(scroller, updateSlider)
 </script>
 
 <template>
-  <div
-    class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur"
-  >
+  <div class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur">
     <div
       ref="scroller"
       class="[scrollbar-width:none] overflow-x-auto pr-[56px] [&::-webkit-scrollbar]:hidden"
@@ -107,9 +100,7 @@ useResizeObserver(scroller, updateSlider)
           role="tab"
           class="relative z-10 h-[30px] shrink-0 rounded-full px-[12px] text-xs font-medium whitespace-nowrap transition-colors duration-200"
           :class="
-            selectedCategoryId === category.id
-              ? 'text-white'
-              : 'text-zinc-600 active:text-zinc-950'
+            selectedCategoryId === category.id ? 'text-white' : 'text-zinc-600 active:text-zinc-950'
           "
           :aria-selected="selectedCategoryId === category.id"
           @click="selectCategory(category)"
@@ -131,11 +122,7 @@ useResizeObserver(scroller, updateSlider)
     </button>
   </div>
 
-  <MPopup
-    id="category-menu-popup"
-    v-model="isPopupOpen"
-    aria-labelledby="category-menu-title"
-  >
+  <MPopup id="category-menu-popup" v-model="isPopupOpen" aria-labelledby="category-menu-title">
     <CategoryMenu
       :categories="data"
       :selected-id="selectedCategoryId"

@@ -1,3 +1,15 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-export const pcRoutes = [] satisfies RouteRecordRaw[]
+export const pcRoutes = [
+  {
+    path: '/',
+    component: () => import('@/views/layout/index.vue'),
+    children: [
+      {
+        path: '',
+        name: 'desktop-home',
+        component: () => import('@/views/main/index.vue')
+      }
+    ]
+  }
+] satisfies RouteRecordRaw[]

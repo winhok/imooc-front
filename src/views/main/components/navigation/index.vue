@@ -28,8 +28,7 @@ async function loadCategory() {
     ]
   } catch (error) {
     if (!requestController.signal.aborted) {
-      errorMessage.value =
-        error instanceof Error ? error.message : '分类加载失败'
+      errorMessage.value = error instanceof Error ? error.message : '分类加载失败'
     }
   } finally {
     isLoading.value = false
@@ -47,11 +46,7 @@ onBeforeUnmount(() => {
 
 <template>
   <nav aria-label="作品分类">
-    <MobileNavigation
-      v-if="isMobileTerminal"
-      v-model="selectedCategoryId"
-      :data="categories"
-    />
+    <MobileNavigation v-if="isMobileTerminal" v-model="selectedCategoryId" :data="categories" />
 
     <p v-if="isLoading" class="sr-only" aria-live="polite">正在加载分类…</p>
     <p

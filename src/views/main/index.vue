@@ -5,7 +5,7 @@ defineOptions({ name: 'MainView' })
 </script>
 
 <template>
-  <div>
+  <div class="min-h-full bg-zinc-50">
     <NavigationBar />
   </div>
 </template>

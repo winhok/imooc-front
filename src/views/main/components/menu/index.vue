@@ -15,19 +15,11 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div
-    class="flex h-[80dvh] flex-col pb-[max(16px,env(safe-area-inset-bottom))]"
-  >
-    <header
-      class="flex items-center justify-between border-b border-zinc-100 px-[20px] py-[16px]"
-    >
+  <div class="flex h-[80dvh] flex-col pb-[max(16px,env(safe-area-inset-bottom))]">
+    <header class="flex items-center justify-between border-b border-zinc-100 px-[20px] py-[16px]">
       <div>
-        <p class="mb-[2px] text-xs font-medium tracking-[0.12em] text-zinc-400">
-          CATEGORY
-        </p>
-        <h2 id="category-menu-title" class="text-xl font-bold text-zinc-950">
-          所有分类
-        </h2>
+        <p class="mb-[2px] text-xs font-medium tracking-[0.12em] text-zinc-400">CATEGORY</p>
+        <h2 id="category-menu-title" class="text-xl font-bold text-zinc-950">所有分类</h2>
       </div>
 
       <button
@@ -40,9 +32,7 @@ const emit = defineEmits<{
       </button>
     </header>
 
-    <ul
-      class="grid flex-1 grid-cols-2 gap-[8px] overflow-y-auto px-[16px] py-[14px]"
-    >
+    <ul class="grid flex-1 grid-cols-2 gap-[8px] overflow-y-auto px-[16px] py-[14px]">
       <li v-for="category in categories" :key="category.id">
         <button
           type="button"
