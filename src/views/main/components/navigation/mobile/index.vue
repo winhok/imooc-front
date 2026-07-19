@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 
 import type { Category } from '@/api/category'
 import { useCategoryStore } from '@/stores/category'
+import HeaderMy from '@/views/layout/components/header/header-my.vue'
 
 import CategoryMenu from '../../menu/index.vue'
 
@@ -76,7 +77,7 @@ useResizeObserver(scroller, updateSlider)
   >
     <div
       ref="scroller"
-      class="[scrollbar-width:none] overflow-x-auto pr-[56px] [&::-webkit-scrollbar]:hidden"
+      class="[scrollbar-width:none] overflow-x-auto pr-[100px] [&::-webkit-scrollbar]:hidden"
     >
       <div
         class="relative flex min-w-max gap-[2px] px-[10px] py-[5px]"
@@ -107,6 +108,12 @@ useResizeObserver(scroller, updateSlider)
           {{ category.name }}
         </button>
       </div>
+    </div>
+
+    <div
+      class="absolute top-0 right-[54px] grid h-[40px] place-items-center bg-white px-[3px] transition-colors dark:bg-zinc-900"
+    >
+      <HeaderMy />
     </div>
 
     <button

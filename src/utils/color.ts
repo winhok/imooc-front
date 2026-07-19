@@ -1,4 +1,3 @@
-/** Return a stable, low-saturation placeholder color for the same seed. */
 export function colorFromString(seed: string) {
   let hash = 0
 

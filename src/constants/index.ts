@@ -1,6 +1,5 @@
 import type { Category } from '@/api/category'
 
-// PC device minimum width.
 export const PC_DEVICE_WIDTH = 1280
 
 export const THEME_LIGHT = 'light'
@@ -38,3 +37,6 @@ export const CATEGORY_STORAGE_KEY = 'imooc-front:categories'
 
 export const SEARCH_HISTORY_STORAGE_KEY = 'imooc-front:search-history'
 export const SEARCH_HISTORY_LIMIT = 10
+
+export const USER_TOKEN_STORAGE_KEY = 'imooc-front:user-token'
+export const LOGIN_TYPE_USERNAME = 'username'

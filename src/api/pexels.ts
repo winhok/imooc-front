@@ -7,7 +7,6 @@ import type {
 } from '@/types/pexels'
 import request from '@/utils/request'
 
-/** Fetch one page of works for the home waterfall. */
 export function getPexelsList(params: PexelsListParams, signal?: AbortSignal) {
   return request<PexelsListResponse>({
     url: '/pexels/list',
@@ -17,7 +16,6 @@ export function getPexelsList(params: PexelsListParams, signal?: AbortSignal) {
   })
 }
 
-/** Fetch debounced autocomplete suggestions for the current search draft. */
 export function getPexelsHints(query: string, signal?: AbortSignal) {
   return request<PexelsHintResponse>({
     url: '/pexels/hint',
@@ -27,7 +25,6 @@ export function getPexelsHints(query: string, signal?: AbortSignal) {
   })
 }
 
-/** Fetch curated topics shown when the search draft is empty. */
 export function getPexelsThemes(signal?: AbortSignal) {
   return request<PexelsThemesResponse>({
     url: '/pexels/themes',
@@ -36,7 +33,6 @@ export function getPexelsThemes(signal?: AbortSignal) {
   })
 }
 
-/** Fetch the work rendered by the /pins/:id detail route. */
 export function getPexelsById(id: string, signal?: AbortSignal) {
   return request<PexelsItem>({
     url: `/pexels/${encodeURIComponent(id)}`,

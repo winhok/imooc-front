@@ -11,7 +11,6 @@ interface CategoryPayload {
   categorys: Category[]
 }
 
-/** Fetch the category list and return unwrapped business data. */
 export function getCategory(signal?: AbortSignal) {
   return request<CategoryPayload>({
     url: '/category',

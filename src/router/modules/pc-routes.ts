@@ -1,5 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+import { authRoutes } from './auth-routes'
+
 export const pcRoutes = [
   {
     path: '/',
@@ -19,5 +21,6 @@ export const pcRoutes = [
         ]
       }
     ]
-  }
+  },
+  ...authRoutes
 ] satisfies RouteRecordRaw[]

@@ -1,0 +1,165 @@
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import type { GenericValidateFunction } from 'vee-validate'
+
+import type { LoginCredentials } from '@/api/auth'
+import { message } from '@/libs/message'
+import { useUserStore } from '@/stores'
+
+import AuthField from '../components/AuthField.vue'
+import AuthShell from '../components/AuthShell.vue'
+import SliderCaptcha from '../components/SliderCaptcha.vue'
+import { validateConfirmPassword, validatePassword, validateUsername } from '../validation'
+
+defineOptions({ name: 'RegisterView' })
+
+interface RegisterFormValues {
+  username: string
+  password: string
+  confirmPassword: string
+}
+
+const router = useRouter()
+const userStore = useUserStore()
+const isCaptchaVisible = shallowRef(false)
+const isRegistering = shallowRef(false)
+const pendingCredentials = shallowRef<LoginCredentials>()
+const submitError = shallowRef('')
+const validateConfirmation: GenericValidateFunction = (value, context) =>
+  validateConfirmPassword(value, context.form.password)
+
+const { defineField, errors, handleSubmit } = useForm<RegisterFormValues>({
+  initialValues: {
+    username: '',
+    password: '',
+    confirmPassword: ''
+  },
+  validationSchema: {
+    username: validateUsername,
+    password: validatePassword,
+    confirmPassword: validateConfirmation
+  }
+})
+
+const [username, usernameAttrs] = defineField('username')
+const [password, passwordAttrs] = defineField('password')
+const [confirmPassword, confirmPasswordAttrs] = defineField('confirmPassword')
+
+const submit = handleSubmit((values) => {
+  submitError.value = ''
+  pendingCredentials.value = {
+    username: values.username.trim(),
+    password: values.password
+  }
+  isCaptchaVisible.value = true
+})
+
+async function onCaptchaSuccess() {
+  const credentials = pendingCredentials.value
+
+  isCaptchaVisible.value = false
+
+  if (!credentials || isRegistering.value) {
+    return
+  }
+
+  isRegistering.value = true
+  submitError.value = ''
+
+  try {
+    await userStore.register(credentials)
+    message.success(`账号 ${credentials.username} 注册成功`)
+    await router.replace('/')
+  } catch (error) {
+    submitError.value = error instanceof Error ? error.message : '注册失败，请稍后重试'
+  } finally {
+    isRegistering.value = false
+    pendingCredentials.value = undefined
+  }
+}
+</script>
+
+<template>
+  <AuthShell title="注册账号" description="创建账号后将自动登录">
+    <form novalidate @submit="submit">
+      <div class="grid gap-[4px]">
+        <AuthField
+          v-model="username"
+          v-bind="usernameAttrs"
+          name="username"
+          label="用户名"
+          autocomplete="username"
+          placeholder="请输入 3–12 位用户名"
+          :error="errors.username"
+        />
+        <AuthField
+          v-model="password"
+          v-bind="passwordAttrs"
+          name="password"
+          label="密码"
+          type="password"
+          autocomplete="new-password"
+          placeholder="请输入 6–12 位密码"
+          :error="errors.password"
+        />
+        <AuthField
+          v-model="confirmPassword"
+          v-bind="confirmPasswordAttrs"
+          name="confirmPassword"
+          label="确认密码"
+          type="password"
+          autocomplete="new-password"
+          placeholder="请再次输入密码"
+          :error="errors.confirmPassword"
+        />
+      </div>
+
+      <p class="mb-[13px] text-center text-xs text-zinc-500 dark:text-zinc-400">
+        注册即表示同意
+        <a
+          href="https://m.imooc.com/newfaq?id=89"
+          target="_blank"
+          rel="noreferrer"
+          class="text-red-500 hover:text-red-600 focus-visible:rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+        >
+          《慕课网注册协议》
+        </a>
+      </p>
+
+      <p
+        v-if="submitError"
+        role="alert"
+        class="mb-[12px] rounded-[9px] bg-red-50 px-[12px] py-[9px] text-xs text-red-600 dark:bg-red-950/40 dark:text-red-300"
+      >
+        {{ submitError }}
+      </p>
+
+      <MButton
+        native-type="submit"
+        class="w-full"
+        :loading="isRegistering"
+        :active-animation="false"
+      >
+        立即注册
+      </MButton>
+    </form>
+
+    <template #footer>
+      已有账号？
+      <RouterLink
+        to="/login"
+        class="font-medium text-red-500 hover:text-red-600 focus-visible:rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+      >
+        返回登录
+      </RouterLink>
+    </template>
+  </AuthShell>
+
+  <SliderCaptcha
+    v-if="isCaptchaVisible"
+    @close="isCaptchaVisible = false"
+    @success="onCaptchaSuccess"
+  />
+</template>

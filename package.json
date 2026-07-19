@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@noble/hashes": "^2.2.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vueuse/core": "^14.3.0",
     "axios": "^1.18.1",
@@ -23,6 +24,7 @@
     "file-saver": "^2.0.5",
     "pinia": "^4.0.2",
     "tailwindcss": "^4.3.3",
+    "vee-validate": "^4.15.1",
     "vue": "^3.5.40",
     "vue-router": "^5.2.0"
   },

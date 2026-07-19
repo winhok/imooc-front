@@ -1,5 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 
+import { authRoutes } from './auth-routes'
+
 export const mobileRoutes = [
   {
     path: '/',
@@ -13,5 +15,6 @@ export const mobileRoutes = [
         props: true
       }
     ]
-  }
+  },
+  ...authRoutes
 ] satisfies RouteRecordRaw[]
