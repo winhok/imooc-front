@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { shallowRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, shallowRef } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import type { GenericValidateFunction } from 'vee-validate'
 
-import type { LoginCredentials } from '@/api/auth'
+import type { LoginCredentials, OAuthIdentity } from '@/api/auth'
 import { message } from '@/libs/message'
 import { useUserStore } from '@/stores'
 
 import AuthField from '../components/AuthField.vue'
 import AuthShell from '../components/AuthShell.vue'
+import OAuthIdentityCard from '../oauth/OAuthIdentityCard.vue'
 import SliderCaptcha from '../components/SliderCaptcha.vue'
 import { validateConfirmPassword, validatePassword, validateUsername } from '../validation'
 
@@ -21,14 +23,40 @@ interface RegisterFormValues {
   confirmPassword: string
 }
 
+const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const { pendingOAuthRegistration } = storeToRefs(userStore)
 const isCaptchaVisible = shallowRef(false)
 const isRegistering = shallowRef(false)
 const pendingCredentials = shallowRef<LoginCredentials>()
 const submitError = shallowRef('')
 const validateConfirmation: GenericValidateFunction = (value, context) =>
   validateConfirmPassword(value, context.form.password)
+
+const oauthProvider = computed<OAuthIdentity['provider'] | undefined>(() => {
+  const provider = route.query.oauth
+
+  return provider === 'QQ' || provider === 'WX' ? provider : undefined
+})
+
+const oauthRegistration = computed(() => {
+  const pending = pendingOAuthRegistration.value
+
+  return pending && pending.provider === oauthProvider.value ? pending : null
+})
+
+const pageDescription = computed(() =>
+  oauthRegistration.value ? '创建本地账号以完成第三方登录' : '创建账号后将自动登录'
+)
+
+const redirectTarget = computed(() => {
+  const redirect = route.query.redirect
+
+  return typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+    ? redirect
+    : '/'
+})
 
 const { defineField, errors, handleSubmit } = useForm<RegisterFormValues>({
   initialValues: {
@@ -69,9 +97,13 @@ async function onCaptchaSuccess() {
   submitError.value = ''
 
   try {
-    await userStore.register(credentials)
+    if (oauthRegistration.value) {
+      await userStore.registerWithOAuth(oauthRegistration.value, credentials)
+    } else {
+      await userStore.register(credentials)
+    }
     message.success(`账号 ${credentials.username} 注册成功`)
-    await router.replace('/')
+    await router.replace(redirectTarget.value)
   } catch (error) {
     submitError.value = error instanceof Error ? error.message : '注册失败，请稍后重试'
   } finally {
@@ -82,7 +114,9 @@ async function onCaptchaSuccess() {
 </script>
 
 <template>
-  <AuthShell title="注册账号" description="创建账号后将自动登录">
+  <AuthShell title="注册账号" :description="pageDescription">
+    <OAuthIdentityCard v-if="oauthRegistration" :identity="oauthRegistration" />
+
     <form novalidate @submit="submit">
       <div class="grid gap-[4px]">
         <AuthField

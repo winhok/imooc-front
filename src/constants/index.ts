@@ -40,6 +40,7 @@ export const SEARCH_HISTORY_LIMIT = 10
 
 export const USER_TOKEN_STORAGE_KEY = 'imooc-front:user-token'
 export const LOGIN_TYPE_USERNAME = 'username'
+export const LOGIN_TYPE_OAUTH_NO_REGISTER_CODE = 204
 
 export const OSS_REGION = import.meta.env.VITE_OSS_REGION || 'oss-cn-beijing'
 export const OSS_BUCKET = import.meta.env.VITE_OSS_BUCKET || 'imooc-front'

@@ -10,6 +10,7 @@ import { useUserStore } from '@/stores'
 
 import AuthField from '../components/AuthField.vue'
 import AuthShell from '../components/AuthShell.vue'
+import OAuthProviderButtons from '../oauth/OAuthProviderButtons.vue'
 import SliderCaptcha from '../components/SliderCaptcha.vue'
 import { validatePassword, validateUsername } from '../validation'
 
@@ -122,6 +123,8 @@ async function onCaptchaSuccess() {
         登录
       </MButton>
     </form>
+
+    <OAuthProviderButtons :return-to="redirectTarget" />
 
     <template #footer>
       还没有账号？

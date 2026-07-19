@@ -9,15 +9,65 @@ export interface LoginCredentials {
   password: string
 }
 
-export interface LoginPayload extends LoginCredentials {
+export interface UsernameLoginPayload extends LoginCredentials {
   loginType: 'username'
 }
 
 export interface LoginResponse {
-  token: string
+  token?: string
+  code?: number
 }
 
-export type RegisterPayload = LoginCredentials
+export interface QQOAuthData {
+  nickname: string
+  figureurl_qq_2: string
+  accessToken: string
+}
+
+export interface WeChatOAuthData {
+  openid: string
+  nickname: string
+  headimgurl: string
+}
+
+export type OAuthIdentity =
+  | {
+      provider: 'QQ'
+      data: QQOAuthData
+    }
+  | {
+      provider: 'WX'
+      data: WeChatOAuthData
+    }
+
+export type OAuthLoginPayload =
+  ({ loginType: 'QQ' } & QQOAuthData) | ({ loginType: 'WX' } & WeChatOAuthData)
+
+export type LoginPayload = UsernameLoginPayload | OAuthLoginPayload
+
+export type OAuthRegisterPayload =
+  | (LoginCredentials & { reqType: 'QQ' } & QQOAuthData)
+  | (LoginCredentials & { reqType: 'WX' } & WeChatOAuthData)
+
+export type RegisterPayload = LoginCredentials | OAuthRegisterPayload
+
+export interface WeChatLoginData {
+  appId: string
+  appSecret: string
+  redirectUri: string
+  scope: string
+  state: string
+}
+
+export interface WeChatTokenData {
+  access_token: string
+  openid: string
+}
+
+export interface WeChatUserData {
+  nickname: string
+  headimgurl: string
+}
 
 export interface UserProfile {
   id?: string
@@ -53,6 +103,36 @@ export function registerUser(data: RegisterPayload) {
     url: '/sys/register',
     method: 'POST',
     data
+  })
+}
+
+export function getWeChatLoginData() {
+  return request<WeChatLoginData>({
+    url: '/sys/wxlogin/data',
+    method: 'GET'
+  })
+}
+
+export function getWeChatLoginToken(appId: string, appSecret: string, code: string) {
+  return request<WeChatTokenData>({
+    url: '/sys/wxlogin/access_token',
+    method: 'GET',
+    params: {
+      appid: appId,
+      secret: appSecret,
+      code
+    }
+  })
+}
+
+export function getWeChatUserInfo(accessToken: string, openid: string) {
+  return request<WeChatUserData>({
+    url: '/sys/wxlogin/userinfo',
+    method: 'GET',
+    params: {
+      accessToken,
+      openid
+    }
   })
 }
 

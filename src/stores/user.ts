@@ -7,15 +7,22 @@ import {
   loginUser,
   registerUser,
   type LoginCredentials,
+  type OAuthIdentity,
+  type OAuthRegisterPayload,
   type UserProfile
 } from '@/api/auth'
 import { updateUserProfile } from '@/api/profile'
-import { LOGIN_TYPE_USERNAME, USER_TOKEN_STORAGE_KEY } from '@/constants'
+import {
+  LOGIN_TYPE_OAUTH_NO_REGISTER_CODE,
+  LOGIN_TYPE_USERNAME,
+  USER_TOKEN_STORAGE_KEY
+} from '@/constants'
 import { encodeLegacyPassword } from '@/utils/legacy-password'
 
 export const useUserStore = defineStore('user', () => {
   const token = useStorage(USER_TOKEN_STORAGE_KEY, '')
   const profile = shallowRef<UserProfile | null>(null)
+  const pendingOAuthRegistration = shallowRef<OAuthIdentity | null>(null)
   const isProfileLoading = shallowRef(false)
   const hasInitialized = shallowRef(false)
 
@@ -24,6 +31,7 @@ export const useUserStore = defineStore('user', () => {
   function clearSession() {
     token.value = ''
     profile.value = null
+    pendingOAuthRegistration.value = null
   }
 
   async function loadProfile(signal?: AbortSignal) {
@@ -50,7 +58,12 @@ export const useUserStore = defineStore('user', () => {
       loginType: LOGIN_TYPE_USERNAME
     })
 
+    if (!data.token) {
+      throw new Error('登录接口未返回有效凭据')
+    }
+
     token.value = data.token
+    pendingOAuthRegistration.value = null
     await loadProfile()
   }
 
@@ -63,6 +76,41 @@ export const useUserStore = defineStore('user', () => {
     })
 
     await login({ username, password: credentials.password })
+  }
+
+  async function loginWithOAuth(identity: OAuthIdentity) {
+    const data =
+      identity.provider === 'QQ'
+        ? await loginUser({ loginType: 'QQ', ...identity.data })
+        : await loginUser({ loginType: 'WX', ...identity.data })
+
+    if (data.code === LOGIN_TYPE_OAUTH_NO_REGISTER_CODE) {
+      pendingOAuthRegistration.value = identity
+      return 'registration_required' as const
+    }
+
+    if (!data.token) {
+      throw new Error('登录接口未返回有效凭据')
+    }
+
+    token.value = data.token
+    pendingOAuthRegistration.value = null
+    await loadProfile()
+
+    return 'authenticated' as const
+  }
+
+  async function registerWithOAuth(identity: OAuthIdentity, credentials: LoginCredentials) {
+    const payload = {
+      username: credentials.username.trim(),
+      password: encodeLegacyPassword(credentials.password),
+      reqType: identity.provider,
+      ...identity.data
+    } as OAuthRegisterPayload
+
+    await registerUser(payload)
+    pendingOAuthRegistration.value = null
+    await login(credentials)
   }
 
   async function initialize() {
@@ -86,12 +134,15 @@ export const useUserStore = defineStore('user', () => {
   return {
     token,
     profile,
+    pendingOAuthRegistration,
     isProfileLoading,
     isAuthenticated,
     clearSession,
     loadProfile,
     login,
     register,
+    loginWithOAuth,
+    registerWithOAuth,
     updateProfile,
     initialize
   }
