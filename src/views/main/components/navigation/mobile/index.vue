@@ -2,18 +2,17 @@
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 import type { ComponentPublicInstance, CSSProperties } from 'vue'
 import { useResizeObserver } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 
 import type { Category } from '@/api/category'
+import { useCategoryStore } from '@/stores/category'
 
 import CategoryMenu from '../../menu/index.vue'
 
 defineOptions({ name: 'MobileNavigation' })
 
-const props = defineProps<{
-  data: readonly Category[]
-}>()
-
-const selectedCategoryId = defineModel<string>({ required: true })
+const categoryStore = useCategoryStore()
+const { categories, selectedCategoryId } = storeToRefs(categoryStore)
 const isPopupOpen = shallowRef(false)
 const scroller = useTemplateRef<HTMLElement>('scroller')
 const categoryElements = new Map<string, HTMLElement>()
@@ -56,17 +55,13 @@ async function scrollToSelectedCategory() {
 }
 
 function selectCategory(category: Category) {
-  selectedCategoryId.value = category.id
+  categoryStore.selectCategory(category.id)
   isPopupOpen.value = false
 }
 
 watch(
-  [() => props.data, selectedCategoryId],
+  [categories, selectedCategoryId],
   () => {
-    if (!props.data.some((category) => category.id === selectedCategoryId.value)) {
-      selectedCategoryId.value = props.data[0]?.id ?? ''
-    }
-
     void scrollToSelectedCategory()
   },
   { immediate: true }
@@ -93,7 +88,7 @@ useResizeObserver(scroller, updateSlider)
         />
 
         <button
-          v-for="category in data"
+          v-for="category in categories"
           :key="category.id"
           :ref="(element) => setCategoryRef(category.id, element)"
           type="button"
@@ -124,7 +119,7 @@ useResizeObserver(scroller, updateSlider)
 
   <MPopup id="category-menu-popup" v-model="isPopupOpen" aria-labelledby="category-menu-title">
     <CategoryMenu
-      :categories="data"
+      :categories="categories"
       :selected-id="selectedCategoryId"
       @select="selectCategory"
       @close="isPopupOpen = false"
