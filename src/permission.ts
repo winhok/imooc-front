@@ -15,7 +15,7 @@ export function installPermissionGuard(router: Router) {
     }
 
     if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-      message.warning('请先登录后再访问个人资料')
+      message.warning('请先登录后继续')
       return {
         name: 'login',
         query: { redirect: to.fullPath }

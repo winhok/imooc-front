@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 
-import { message } from '@/libs/message'
 import { useUserStore } from '@/stores'
 import { isMobileTerminal } from '@/utils/flexible'
 
@@ -20,10 +19,6 @@ const accountDestination = computed(() =>
   isAuthenticated.value ? { name: 'profile' } : { name: 'login' }
 )
 const accountLabel = computed(() => (isAuthenticated.value ? '我的' : '登录'))
-
-function openVip() {
-  message.info('会员升级功能暂未开放')
-}
 </script>
 
 <template>
@@ -45,7 +40,7 @@ function openVip() {
         class="fixed right-1/2 bottom-[max(16px,env(safe-area-inset-bottom))] z-40 translate-x-1/2"
       >
         <MTriggerMenuItem icon="home" label="首页" to="/" active />
-        <MTriggerMenuItem icon="crown" label="VIP" @click="openVip" />
+        <MTriggerMenuItem icon="crown" label="VIP" :to="{ name: 'member' }" />
         <MTriggerMenuItem icon="profile" :label="accountLabel" :to="accountDestination" />
       </MTriggerMenu>
     </div>

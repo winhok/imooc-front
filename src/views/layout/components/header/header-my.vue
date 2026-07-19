@@ -40,7 +40,7 @@ async function onMenuClick(item: MenuItem) {
       return
     }
 
-    message.info('会员升级功能暂未开放')
+    await router.push({ name: 'member' })
     return
   }
 

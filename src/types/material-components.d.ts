@@ -3,6 +3,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     MButton: (typeof import('@/libs/button/index.vue'))['default']
+    MCountDown: (typeof import('@/libs/count-down/index.vue'))['default']
     MDialog: (typeof import('@/libs/dialog/index.vue'))['default']
     MInfiniteScroll: (typeof import('@/libs/infinite-scroll/index.vue'))['default']
     MInput: (typeof import('@/libs/input/index.vue'))['default']
