@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 import type { PexelsItem } from '@/types/pexels'
 import { isMobileTerminal } from '@/utils/flexible'
+import { setPinsTransitionSource } from '@/views/pins/usePinsTransition'
+import type { PinsTransitionOrigin } from '@/views/pins/usePinsTransition'
 
 import PexelsCard from './PexelsCard.vue'
 import { usePexelsList } from './usePexelsList'
@@ -13,6 +16,7 @@ const CARD_CONTENT_HEIGHT = 96
 const FALLBACK_ASPECT_RATIO = 4 / 3
 
 const { items, isLoading, isFinished, errorMessage, loadNextPage, retry } = usePexelsList()
+const router = useRouter()
 
 const columns = computed(() => (isMobileTerminal.value ? 2 : 5))
 const columnGap = computed(() => (isMobileTerminal.value ? 12 : 20))
@@ -36,6 +40,11 @@ function getCardHeight(item: PexelsItem, width: number) {
 
 function getItemKey(item: PexelsItem) {
   return item.id
+}
+
+function openDetails(payload: { item: PexelsItem; origin: PinsTransitionOrigin }) {
+  setPinsTransitionSource(payload.item.id, payload.origin)
+  void router.push({ name: 'pins', params: { id: payload.item.id } })
 }
 </script>
 
@@ -65,7 +74,11 @@ function getItemKey(item: PexelsItem) {
         :get-item-height="getCardHeight"
       >
         <template #default="{ item, width }">
-          <PexelsCard :item="item" :image-height="getImageHeight(item, width)" />
+          <PexelsCard
+            :item="item"
+            :image-height="getImageHeight(item, width)"
+            @open-details="openDetails"
+          />
         </template>
       </MWaterfall>
     </MInfiniteScroll>

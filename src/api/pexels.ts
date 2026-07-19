@@ -1,5 +1,6 @@
 import type {
   PexelsHintResponse,
+  PexelsItem,
   PexelsListParams,
   PexelsListResponse,
   PexelsThemesResponse
@@ -30,6 +31,15 @@ export function getPexelsHints(query: string, signal?: AbortSignal) {
 export function getPexelsThemes(signal?: AbortSignal) {
   return request<PexelsThemesResponse>({
     url: '/pexels/themes',
+    method: 'GET',
+    signal
+  })
+}
+
+/** Fetch the work rendered by the /pins/:id detail route. */
+export function getPexelsById(id: string, signal?: AbortSignal) {
+  return request<PexelsItem>({
+    url: `/pexels/${encodeURIComponent(id)}`,
     method: 'GET',
     signal
   })

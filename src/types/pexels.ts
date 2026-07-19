@@ -2,12 +2,15 @@ export interface PexelsItem {
   id: string
   title: string
   photo: string
+  photoLink?: string
   photoDownLink?: string
   photoWidth: number
   photoHeight: number
   photoType?: string
   author: string
+  authorLike?: string
   avatar: string
+  tags?: string[]
 }
 
 export interface PexelsListParams {

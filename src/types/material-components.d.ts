@@ -5,6 +5,7 @@ declare module 'vue' {
     MButton: (typeof import('@/libs/button/index.vue'))['default']
     MInfiniteScroll: (typeof import('@/libs/infinite-scroll/index.vue'))['default']
     MLazyImage: (typeof import('@/libs/lazy-image/index.vue'))['default']
+    MNavbar: (typeof import('@/libs/navbar/index.vue'))['default']
     MPopup: (typeof import('@/libs/popup/index.vue'))['default']
     MPopover: (typeof import('@/libs/popover/index.vue'))['default']
     MSearch: (typeof import('@/libs/search/index.vue'))['default']

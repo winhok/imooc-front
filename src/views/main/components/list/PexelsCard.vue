@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue'
 import { useFullscreen } from '@vueuse/core'
+import { RouterLink } from 'vue-router'
 
 import { message } from '@/libs/message'
 import type { PexelsItem } from '@/types/pexels'
 import { colorFromString } from '@/utils/color'
 
 import { useImageDownload } from './useImageDownload'
+import type { PinsTransitionOrigin } from '@/views/pins/usePinsTransition'
 
 defineOptions({ name: 'PexelsCard' })
 
@@ -17,10 +19,34 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const emit = defineEmits<{
+  openDetails: [payload: { item: PexelsItem; origin: PinsTransitionOrigin }]
+}>()
+
 const placeholderColor = computed(() => colorFromString(props.item.id))
 const preview = useTemplateRef<HTMLElement>('preview')
 const { isFullscreen, isSupported, enter, exit } = useFullscreen(preview, { autoExit: true })
 const { isDownloading, downloadImage } = useImageDownload()
+
+function openDetails(event: MouseEvent) {
+  if (
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey ||
+    !preview.value
+  ) {
+    return
+  }
+
+  event.preventDefault()
+  const { left, top, width, height } = preview.value.getBoundingClientRect()
+  emit('openDetails', {
+    item: props.item,
+    origin: { left, top, width, height }
+  })
+}
 
 async function openFullscreen() {
   if (!isSupported.value) {
@@ -63,8 +89,17 @@ async function closeFullscreen() {
         :fit="isFullscreen ? 'contain' : 'cover'"
       />
 
+      <RouterLink :to="{ name: 'pins', params: { id: item.id } }" custom v-slot="{ href }">
+        <a
+          :href="href"
+          class="absolute inset-0 z-10 rounded-t-[12px] focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none focus-visible:ring-inset"
+          :aria-label="`查看作品详情：${item.title}`"
+          @click="openDetails"
+        />
+      </RouterLink>
+
       <div
-        class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-950/55 via-transparent to-transparent transition-opacity duration-200 motion-reduce:transition-none xl:opacity-0 xl:group-focus-within:opacity-100 xl:group-hover:opacity-100"
+        class="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-zinc-950/55 via-transparent to-transparent transition-opacity duration-200 motion-reduce:transition-none xl:opacity-0 xl:group-focus-within:opacity-100 xl:group-hover:opacity-100"
       >
         <div
           class="pointer-events-auto absolute right-[8px] bottom-[8px] flex items-center gap-[6px] xl:right-[10px] xl:bottom-[10px]"

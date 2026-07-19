@@ -13,4 +13,9 @@ app.use(pinia)
 app.use(router)
 app.use(materialLibrary)
 
-app.mount('#app')
+async function bootstrap() {
+  await router.isReady()
+  app.mount('#app')
+}
+
+void bootstrap()
