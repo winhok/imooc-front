@@ -9,11 +9,13 @@ defineOptions({ name: 'DesktopHeader' })
 </script>
 
 <template>
-  <header class="relative z-40 border-b border-zinc-200 bg-white px-[24px]">
+  <header
+    class="relative z-40 border-b border-zinc-200 bg-white px-[24px] transition-colors duration-300 motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-950"
+  >
     <div class="mx-auto flex h-full max-w-[1600px] items-center gap-[16px]">
       <RouterLink
         to="/"
-        class="flex shrink-0 items-center gap-[10px] rounded-[8px] text-zinc-950 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+        class="flex shrink-0 items-center gap-[10px] rounded-[8px] text-zinc-950 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:text-zinc-50 dark:focus-visible:ring-offset-zinc-950"
         aria-label="返回首页"
       >
         <span

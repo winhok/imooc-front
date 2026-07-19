@@ -37,9 +37,11 @@ defineSlots<{
 }>()
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-zinc-900 text-white hover:bg-zinc-800',
+  primary:
+    'bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-white',
   accent: 'bg-red-500 text-white hover:bg-red-600',
-  neutral: 'bg-zinc-100 text-zinc-800 hover:bg-zinc-200'
+  neutral:
+    'bg-zinc-100 text-zinc-800 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700'
 }
 
 const textSizeClasses: Record<ButtonSize, string> = {

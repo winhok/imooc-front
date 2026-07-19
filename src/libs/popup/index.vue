@@ -76,7 +76,7 @@ onUnmounted(() => {
       <section
         v-if="isOpen"
         v-bind="$attrs"
-        class="fixed inset-x-0 bottom-0 z-50 w-full rounded-t-[20px] bg-white shadow-2xl"
+        class="fixed inset-x-0 bottom-0 z-50 w-full rounded-t-[20px] bg-white shadow-2xl transition-colors dark:bg-zinc-900"
         role="dialog"
         aria-modal="true"
       >

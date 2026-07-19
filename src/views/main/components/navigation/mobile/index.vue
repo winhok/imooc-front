@@ -71,7 +71,9 @@ useResizeObserver(scroller, updateSlider)
 </script>
 
 <template>
-  <div class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur">
+  <div
+    class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur transition-colors duration-300 motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-900/95"
+  >
     <div
       ref="scroller"
       class="[scrollbar-width:none] overflow-x-auto pr-[56px] [&::-webkit-scrollbar]:hidden"
@@ -82,7 +84,7 @@ useResizeObserver(scroller, updateSlider)
         aria-label="作品分类"
       >
         <span
-          class="pointer-events-none absolute top-[5px] left-0 h-[30px] rounded-full bg-zinc-950 transition-[width,transform] duration-200 ease-out motion-reduce:transition-none"
+          class="pointer-events-none absolute top-[5px] left-0 h-[30px] rounded-full bg-zinc-950 transition-[width,transform,background-color] duration-200 ease-out motion-reduce:transition-none dark:bg-zinc-100"
           :style="sliderStyle"
           aria-hidden="true"
         />
@@ -95,7 +97,9 @@ useResizeObserver(scroller, updateSlider)
           role="tab"
           class="relative z-10 h-[30px] shrink-0 rounded-full px-[12px] text-xs font-medium whitespace-nowrap transition-colors duration-200"
           :class="
-            selectedCategoryId === category.id ? 'text-white' : 'text-zinc-600 active:text-zinc-950'
+            selectedCategoryId === category.id
+              ? 'text-white dark:text-zinc-950'
+              : 'text-zinc-600 active:text-zinc-950 dark:text-zinc-400 dark:active:text-zinc-100'
           "
           :aria-selected="selectedCategoryId === category.id"
           @click="selectCategory(category)"
@@ -107,7 +111,7 @@ useResizeObserver(scroller, updateSlider)
 
     <button
       type="button"
-      class="absolute top-0 right-0 grid h-[40px] w-[54px] place-items-center bg-white text-zinc-900 shadow-left-white active:bg-zinc-50"
+      class="absolute top-0 right-0 grid h-[40px] w-[54px] place-items-center bg-white text-zinc-900 shadow-left-white transition-colors active:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-left-zinc dark:active:bg-zinc-800"
       aria-label="查看所有分类"
       aria-controls="category-menu-popup"
       :aria-expanded="isPopupOpen"

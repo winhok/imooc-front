@@ -13,7 +13,7 @@ const menuItems = [
     <template #reference="{ isOpen }">
       <button
         type="button"
-        class="flex items-center gap-[6px] rounded-[10px] p-[4px] pr-[8px] text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+        class="flex items-center gap-[6px] rounded-[10px] p-[4px] pr-[8px] text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-300 dark:hover:bg-zinc-800"
         aria-label="查看用户菜单"
         :aria-expanded="isOpen"
       >
@@ -34,15 +34,15 @@ const menuItems = [
     </template>
 
     <section class="w-[168px]" aria-label="用户菜单">
-      <div class="border-b border-zinc-100 px-[10px] pt-[4px] pb-[10px]">
-        <p class="text-sm font-semibold text-zinc-900">慕课用户</p>
-        <p class="mt-[2px] text-xs text-zinc-400">演示账号</p>
+      <div class="border-b border-zinc-100 px-[10px] pt-[4px] pb-[10px] dark:border-zinc-800">
+        <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">慕课用户</p>
+        <p class="mt-[2px] text-xs text-zinc-400 dark:text-zinc-500">演示账号</p>
       </div>
       <ul class="pt-[6px]">
         <li
           v-for="item in menuItems"
           :key="item.id"
-          class="flex items-center gap-[10px] rounded-[8px] px-[10px] py-[9px] text-sm text-zinc-700"
+          class="flex items-center gap-[10px] rounded-[8px] px-[10px] py-[9px] text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
         >
           <MSvgIcon :name="item.icon" :size="17" />
           <span>{{ item.title }}</span>

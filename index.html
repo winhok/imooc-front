@@ -1,9 +1,26 @@
 <!doctype html>
-<html lang="">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      try {
+        const preference = localStorage.getItem('imooc-front:theme')
+        const prefersDark = window.matchMedia(
+          '(prefers-color-scheme: dark)'
+        ).matches
+        document.documentElement.classList.toggle(
+          'dark',
+          preference === 'dark' || (preference !== 'light' && prefersDark)
+        )
+      } catch {
+        document.documentElement.classList.toggle(
+          'dark',
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        )
+      }
+    </script>
     <title>Vite App</title>
   </head>
   <body>

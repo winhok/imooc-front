@@ -1,6 +1,7 @@
 :root {
   color: #18181b;
   background: #f4f4f5;
+  color-scheme: light;
   font-family:
     Inter,
     ui-sans-serif,
@@ -11,6 +12,12 @@
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root.dark {
+  color: #f4f4f5;
+  background: #09090b;
+  color-scheme: dark;
 }
 
 html {

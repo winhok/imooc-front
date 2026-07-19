@@ -7,7 +7,9 @@ defineOptions({ name: 'DesktopLayout' })
 </script>
 
 <template>
-  <div class="grid h-dvh grid-rows-[72px_minmax(0,1fr)] bg-zinc-50">
+  <div
+    class="grid h-dvh grid-rows-[72px_minmax(0,1fr)] bg-zinc-50 transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-950"
+  >
     <DesktopHeader />
     <LayoutMain />
     <LayoutFloating />

@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --text-xs: 0.3rem;
   --text-xs--line-height: 0.42rem;
@@ -15,4 +17,8 @@
 
 @utility shadow-left-white {
   box-shadow: -12px 0 12px rgb(255 255 255 / 0.96);
+}
+
+@utility shadow-left-zinc {
+  box-shadow: -12px 0 12px rgb(24 24 27 / 0.96);
 }

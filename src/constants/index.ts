@@ -6,6 +6,7 @@ export const PC_DEVICE_WIDTH = 1280
 export const THEME_LIGHT = 'light'
 export const THEME_DARK = 'dark'
 export const THEME_SYSTEM = 'system'
+export const THEME_STORAGE_KEY = 'imooc-front:theme'
 
 export type ThemePreference = typeof THEME_LIGHT | typeof THEME_DARK | typeof THEME_SYSTEM
 

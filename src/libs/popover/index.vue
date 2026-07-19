@@ -113,7 +113,7 @@ onBeforeUnmount(clearTimers)
     <Transition name="popover">
       <div
         v-if="isOpen"
-        class="absolute z-40 rounded-[12px] border border-zinc-200 bg-white p-[8px] text-zinc-900 shadow-xl"
+        class="absolute z-40 rounded-[12px] border border-zinc-200 bg-white p-[8px] text-zinc-900 shadow-xl transition-colors dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
         :class="contentClass"
         data-popover-content
       >
