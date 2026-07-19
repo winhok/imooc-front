@@ -4,9 +4,12 @@ interface MaterialModule {
   default: Component
 }
 
-const materialModules = import.meta.glob<MaterialModule>('./*/index.vue', {
-  eager: true
-})
+const materialModules = import.meta.glob<MaterialModule>(
+  ['./*/index.vue', '!./confirm/index.vue'],
+  {
+    eager: true
+  }
+)
 
 function toComponentName(path: string) {
   const directory = path.split('/')[1]
