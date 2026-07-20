@@ -12,6 +12,7 @@ const props = defineProps<{
   plan: VipPayPlan
   discountTime: number
   discountActive: boolean
+  processing: boolean
 }>()
 
 defineEmits<{
@@ -35,7 +36,7 @@ const amount = computed(() => Number(props.plan.price).toFixed(2))
         <span class="text-[34px] leading-none font-semibold tabular-nums">{{ amount }}</span>
       </p>
       <div class="mt-[24px] w-full max-w-[280px]">
-        <AlipayOption @select="$emit('purchase')" />
+        <AlipayOption :loading="processing" @select="$emit('purchase')" />
       </div>
       <p class="mt-[14px] text-xs text-zinc-400 dark:text-zinc-500">
         点击支付方式后进入第三方支付流程

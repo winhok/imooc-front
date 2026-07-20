@@ -4,9 +4,11 @@ defineOptions({ name: 'AlipayOption' })
 withDefaults(
   defineProps<{
     compact?: boolean
+    loading?: boolean
   }>(),
   {
-    compact: false
+    compact: false,
+    loading: false
   }
 )
 
@@ -18,10 +20,12 @@ defineEmits<{
 <template>
   <button
     type="button"
-    class="flex w-full items-center rounded-[14px] border border-zinc-200 bg-white text-left transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600 dark:hover:bg-blue-500/10"
+    class="flex w-full items-center rounded-[14px] border border-zinc-200 bg-white text-left transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600 dark:hover:bg-blue-500/10"
     :class="
       compact ? 'gap-[12px] px-[14px] py-[14px]' : 'max-w-[280px] gap-[14px] px-[18px] py-[16px]'
     "
+    :disabled="loading"
+    :aria-busy="loading"
     @click="$emit('select')"
   >
     <span
@@ -31,7 +35,9 @@ defineEmits<{
       支
     </span>
     <span class="min-w-0 flex-1">
-      <span class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">支付宝</span>
+      <span class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+        {{ loading ? '正在前往支付宝' : '支付宝' }}
+      </span>
       <span class="mt-[2px] block text-xs text-zinc-500 dark:text-zinc-400"
         >安全便捷，即时到账</span
       >

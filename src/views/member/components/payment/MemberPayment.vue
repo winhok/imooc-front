@@ -2,7 +2,6 @@
 import { computed, shallowRef } from 'vue'
 
 import type { VipPayPlan } from '@/api/pay'
-import { message } from '@/libs/message'
 import { isMobileTerminal } from '@/utils/flexible'
 
 import DesktopPayment from './DesktopPayment.vue'
@@ -10,8 +9,13 @@ import MobilePayment from './MobilePayment.vue'
 
 defineOptions({ name: 'MemberPayment' })
 
-defineProps<{
+const props = defineProps<{
   plan: VipPayPlan
+  processing: boolean
+}>()
+
+const emit = defineEmits<{
+  purchase: [plan: VipPayPlan]
 }>()
 
 const discountActive = shallowRef(true)
@@ -26,7 +30,7 @@ function finishDiscount() {
 }
 
 function startPurchase() {
-  message.info('支付服务将在后续章节接入')
+  emit('purchase', props.plan)
 }
 </script>
 
@@ -37,6 +41,7 @@ function startPurchase() {
       :plan="plan"
       :discount-time="discountTime"
       :discount-active="discountActive"
+      :processing="processing"
       @discount-finish="finishDiscount"
       @purchase="startPurchase"
     />
@@ -45,6 +50,7 @@ function startPurchase() {
       :plan="plan"
       :discount-time="discountTime"
       :discount-active="discountActive"
+      :processing="processing"
       @discount-finish="finishDiscount"
       @purchase="startPurchase"
     />

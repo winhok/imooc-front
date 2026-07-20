@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { isMobileTerminal } from '@/utils/flexible'
+import { message } from '@/libs/message'
+import { startAlipayPayment } from '@/utils/pay'
+import type { VipPayPlan } from '@/api/pay'
 
 import VipPlanCard from './components/VipPlanCard.vue'
 import MemberPayment from './components/payment/MemberPayment.vue'
@@ -12,12 +15,28 @@ defineOptions({ name: 'MemberView' })
 
 const router = useRouter()
 const { plans, selectedPlan, isLoading, errorMessage, loadPlans, selectPlan } = useVipPlans()
+const isPaying = shallowRef(false)
 
 function goBack() {
   if (window.history.length > 1) {
     router.back()
   } else {
     void router.replace('/')
+  }
+}
+
+async function purchase(plan: VipPayPlan) {
+  if (isPaying.value) {
+    return
+  }
+
+  isPaying.value = true
+
+  try {
+    await startAlipayPayment(plan)
+  } catch (error) {
+    isPaying.value = false
+    message.error(error instanceof Error ? error.message : '创建支付订单失败')
   }
 }
 
@@ -113,7 +132,12 @@ onMounted(loadPlans)
             <p class="mt-[4px] min-h-[20px] text-xs text-zinc-500 dark:text-zinc-400">
               {{ selectedPlan.desc }}
             </p>
-            <MemberPayment class="mt-[22px]" :plan="selectedPlan" />
+            <MemberPayment
+              class="mt-[22px]"
+              :plan="selectedPlan"
+              :processing="isPaying"
+              @purchase="purchase"
+            />
           </template>
 
           <div

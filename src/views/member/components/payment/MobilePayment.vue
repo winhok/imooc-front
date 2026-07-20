@@ -12,6 +12,7 @@ const props = defineProps<{
   plan: VipPayPlan
   discountTime: number
   discountActive: boolean
+  processing: boolean
 }>()
 
 const emit = defineEmits<{
@@ -51,8 +52,13 @@ function chooseAlipay() {
           限时立减 ¥{{ savings }}
         </p>
       </div>
-      <MButton class="w-[124px]" :active-animation="false" @click="isPaymentSheetOpen = true">
-        立即开通
+      <MButton
+        class="w-[124px]"
+        :active-animation="false"
+        :loading="processing"
+        @click="isPaymentSheetOpen = true"
+      >
+        {{ processing ? '正在下单' : '立即开通' }}
       </MButton>
     </div>
   </section>
@@ -74,7 +80,7 @@ function chooseAlipay() {
           <MSvgIcon name="close" :size="16" />
         </button>
       </div>
-      <AlipayOption compact @select="chooseAlipay" />
+      <AlipayOption compact :loading="processing" @select="chooseAlipay" />
     </div>
   </MPopup>
 </template>
