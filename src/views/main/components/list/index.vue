@@ -12,15 +12,15 @@ import { usePexelsList } from './usePexelsList'
 
 defineOptions({ name: 'PexelsList' })
 
-const CARD_CONTENT_HEIGHT = 96
+const CARD_CONTENT_HEIGHT = 78
 const FALLBACK_ASPECT_RATIO = 4 / 3
 
 const { items, isLoading, isFinished, errorMessage, loadNextPage, retry } = usePexelsList()
 const router = useRouter()
 
 const columns = computed(() => (isMobileTerminal.value ? 2 : 5))
-const columnGap = computed(() => (isMobileTerminal.value ? 12 : 20))
-const rowGap = computed(() => (isMobileTerminal.value ? 12 : 20))
+const columnGap = computed(() => (isMobileTerminal.value ? 10 : 20))
+const rowGap = computed(() => (isMobileTerminal.value ? 10 : 20))
 
 function getAspectRatio(item: PexelsItem) {
   if (item.photoWidth <= 0 || item.photoHeight <= 0) {

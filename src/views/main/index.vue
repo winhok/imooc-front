@@ -23,7 +23,7 @@ const accountLabel = computed(() => (isAuthenticated.value ? '我的' : '登录'
 
 <template>
   <div
-    class="min-h-full bg-zinc-50 transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-950"
+    class="min-h-full bg-white transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-800"
   >
     <div
       class="pb-[calc(92px+env(safe-area-inset-bottom))] xl:pb-0"
@@ -31,16 +31,21 @@ const accountLabel = computed(() => (isAuthenticated.value ? '我的' : '登录'
       :aria-hidden="isPinsOpen || undefined"
     >
       <NavigationBar />
-      <div class="mx-auto w-full max-w-[1600px] px-[12px] pt-[12px] xl:px-[32px] xl:pt-[24px]">
+      <div class="relative mx-[10px] mt-[10px] max-w-[1280px] xl:mx-auto xl:mt-[40px]">
         <PexelsList />
       </div>
 
       <MTriggerMenu
         v-if="isMobileTerminal"
-        class="fixed right-1/2 bottom-[max(16px,env(safe-area-inset-bottom))] z-40 translate-x-1/2"
+        class="fixed right-1/2 bottom-[max(60px,env(safe-area-inset-bottom))] z-40 w-[220px] translate-x-1/2"
       >
         <MTriggerMenuItem icon="home" label="首页" to="/" active />
-        <MTriggerMenuItem icon="crown" label="VIP" :to="{ name: 'member' }" />
+        <MTriggerMenuItem
+          v-if="isAuthenticated"
+          icon="crown"
+          label="VIP"
+          :to="{ name: 'member' }"
+        />
         <MTriggerMenuItem icon="profile" :label="accountLabel" :to="accountDestination" />
       </MTriggerMenu>
     </div>

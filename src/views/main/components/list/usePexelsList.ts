@@ -48,8 +48,8 @@ export function usePexelsList() {
       items.value = [...items.value, ...newItems]
       page.value = nextPage
       isFinished.value =
-        response.list.length === 0 ||
-        response.list.length < PAGE_SIZE ||
+        response.sourceLength === 0 ||
+        response.sourceLength < PAGE_SIZE ||
         (response.total !== undefined && items.value.length >= response.total)
     } catch (error) {
       if (!controller.signal.aborted) {

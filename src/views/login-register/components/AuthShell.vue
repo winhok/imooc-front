@@ -15,51 +15,50 @@ const titleId = useId()
 
 defineSlots<{
   default(): VNode[]
-  footer(): VNode[]
 }>()
 </script>
 
 <template>
   <main
-    class="relative grid min-h-[100dvh] place-items-center overflow-hidden bg-zinc-100 px-[16px] py-[32px] dark:bg-zinc-950"
+    class="relative min-h-dvh overflow-hidden bg-white text-center xl:bg-zinc-200 dark:bg-zinc-800"
   >
-    <div
-      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(239,68,68,0.12),transparent_34%),radial-gradient(circle_at_85%_80%,rgba(244,63,94,0.1),transparent_30%)]"
-      aria-hidden="true"
-    />
+    <div class="hidden h-[80px] pt-[10px] xl:block">
+      <img src="https://res.lgdsunday.club/weixin.png" alt="" class="mx-auto h-full" />
+    </div>
 
-    <section class="relative w-full max-w-[420px]" :aria-labelledby="titleId">
-      <RouterLink
-        to="/"
-        class="mx-auto mb-[24px] flex w-fit items-center gap-[9px] rounded-[10px] px-[8px] py-[5px] text-zinc-900 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-white"
-        aria-label="返回首页"
-      >
-        <span
-          class="grid size-[36px] place-items-center rounded-[10px] bg-red-500 text-sm font-bold text-white"
-          >M</span
-        >
-        <span class="text-base font-bold tracking-[0.04em]">MATERIAL</span>
+    <div class="relative h-[111px] xl:hidden">
+      <img
+        src="https://res.lgdsunday.club/login-bg.png"
+        alt=""
+        class="size-full object-fill dark:hidden"
+      />
+      <RouterLink to="/" aria-label="返回首页">
+        <img
+          src="https://res.lgdsunday.club/my-avatar.jpg"
+          alt=""
+          class="absolute top-[5%] left-1/2 h-[50px] -translate-x-1/2"
+        />
       </RouterLink>
+    </div>
 
-      <div
-        class="rounded-[18px] border border-white/70 bg-white/95 p-[22px] shadow-[0_20px_70px_rgba(24,24,27,0.12)] backdrop-blur md:p-[30px] dark:border-zinc-800 dark:bg-zinc-900/95 dark:shadow-black/30"
-      >
-        <header class="mb-[24px] text-center">
-          <h1 :id="titleId" class="text-lg font-semibold text-zinc-950 dark:text-zinc-50">
+    <section
+      class="mt-[40px] block px-[30px] xl:mx-auto xl:mt-[80px] xl:w-[388px] xl:rounded-sm xl:bg-white xl:py-[40px] xl:shadow-lg dark:bg-zinc-800 xl:dark:bg-zinc-900"
+      :aria-labelledby="titleId"
+    >
+      <div>
+        <header class="mb-[20px] text-center">
+          <h1
+            :id="titleId"
+            class="hidden text-base font-semibold text-red-500 xl:block dark:text-zinc-300"
+          >
             {{ title }}
           </h1>
-          <p class="mt-[7px] text-sm text-zinc-500 dark:text-zinc-400">
+          <p class="sr-only">
             {{ description }}
           </p>
         </header>
 
         <slot />
-
-        <footer
-          class="mt-[20px] border-t border-zinc-100 pt-[18px] text-center text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400"
-        >
-          <slot name="footer" />
-        </footer>
       </div>
     </section>
   </main>

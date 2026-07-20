@@ -8,11 +8,18 @@ import {
   useId,
   useTemplateRef
 } from 'vue'
-import { useEventListener, useScrollLock } from '@vueuse/core'
+import { useEventListener, useResizeObserver, useScrollLock } from '@vueuse/core'
 
 import { verifyCaptcha } from '@/api/auth'
 
+import CaptchaPuzzle from './CaptchaPuzzle.vue'
+import { createCaptchaChallenge } from './captcha-challenge'
+
 defineOptions({ name: 'SliderCaptcha' })
+
+const KNOB_SIZE = 36
+const KNOB_RADIUS = KNOB_SIZE / 2
+const ALIGNMENT_TOLERANCE = 4
 
 const emit = defineEmits<{
   close: []
@@ -24,40 +31,50 @@ const track = useTemplateRef<HTMLElement>('track')
 const titleId = useId()
 const hintId = useId()
 const progress = shallowRef(0)
-const target = shallowRef(createTarget())
+const challenge = shallowRef(createCaptchaChallenge())
 const status = shallowRef<'idle' | 'dragging' | 'verifying' | 'error'>('idle')
 const errorMessage = shallowRef('')
 const pointerId = shallowRef<number | null>(null)
 const startY = shallowRef(0)
 const behavior = shallowRef<number[]>([])
 const lastKeyboardTime = shallowRef(0)
+const trackWidth = shallowRef(0)
+const isImageLoaded = shallowRef(false)
 const abortController = shallowRef<AbortController>()
 const resetTimer = shallowRef<number>()
 const isScrollLocked = useScrollLock(document.body)
 const previouslyFocusedElement =
   document.activeElement instanceof HTMLElement ? document.activeElement : undefined
 
-const knobStyle = computed(() => ({ left: `calc(${progress.value}% - 18px)` }))
-const pieceStyle = computed(() => ({ left: `calc(${progress.value}% - 22px)` }))
-const targetStyle = computed(() => ({ left: `calc(${target.value}% - 22px)` }))
-const progressStyle = computed(() => ({ width: `${progress.value}%` }))
-const statusText = computed(() => {
-  if (status.value === 'verifying') {
-    return '正在验证行为轨迹…'
+const knobOffset = computed(
+  () => (progress.value / 100) * Math.max(0, trackWidth.value - KNOB_SIZE)
+)
+const knobStyle = computed(() => ({ left: `${knobOffset.value}px` }))
+const progressStyle = computed(() => ({ width: `${knobOffset.value + KNOB_RADIUS}px` }))
+const alignmentHint = computed(() => {
+  const difference = progress.value - challenge.value.targetProgress
+
+  if (Math.abs(difference) <= ALIGNMENT_TOLERANCE) {
+    return '拼图块已与缺口对齐'
   }
 
+  return difference < 0 ? '拼图块位于缺口左侧' : '拼图块位于缺口右侧'
+})
+const statusText = computed(() => {
   if (status.value === 'error') {
     return errorMessage.value
   }
 
+  if (!isImageLoaded.value) {
+    return '正在加载验证图片…'
+  }
+
+  if (status.value === 'verifying') {
+    return '正在验证行为轨迹…'
+  }
+
   return '拖动滑块，让拼图块与缺口重合'
 })
-
-function createTarget() {
-  const values = new Uint32Array(1)
-  crypto.getRandomValues(values)
-  return 58 + ((values[0] ?? 0) % 21)
-}
 
 function reset() {
   if (resetTimer.value) {
@@ -67,7 +84,8 @@ function reset() {
 
   abortController.value?.abort()
   progress.value = 0
-  target.value = createTarget()
+  challenge.value = createCaptchaChallenge(challenge.value.imageUrl)
+  isImageLoaded.value = false
   status.value = 'idle'
   errorMessage.value = ''
   pointerId.value = null
@@ -83,11 +101,15 @@ function updateProgress(clientX: number) {
   }
 
   const rect = element.getBoundingClientRect()
-  progress.value = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100))
+  const travelWidth = Math.max(1, rect.width - KNOB_SIZE)
+  progress.value = Math.min(
+    100,
+    Math.max(0, ((clientX - rect.left - KNOB_RADIUS) / travelWidth) * 100)
+  )
 }
 
 function onPointerDown(event: PointerEvent) {
-  if (status.value === 'verifying') {
+  if (status.value === 'verifying' || !isImageLoaded.value) {
     return
   }
 
@@ -98,7 +120,7 @@ function onPointerDown(event: PointerEvent) {
   }
 
   const rect = element.getBoundingClientRect()
-  const knobCenter = rect.left + (progress.value / 100) * rect.width
+  const knobCenter = rect.left + knobOffset.value + KNOB_RADIUS
 
   if (Math.abs(event.clientX - knobCenter) > 26) {
     return
@@ -139,7 +161,7 @@ function onPointerCancel(event: PointerEvent) {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (status.value === 'verifying') {
+  if (status.value === 'verifying' || !isImageLoaded.value) {
     return
   }
 
@@ -168,7 +190,11 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 async function completeChallenge() {
-  if (Math.abs(progress.value - target.value) > 4) {
+  if (!isImageLoaded.value) {
+    return
+  }
+
+  if (Math.abs(progress.value - challenge.value.targetProgress) > ALIGNMENT_TOLERANCE) {
     status.value = 'error'
     errorMessage.value = '位置没有对齐，请重试'
     resetTimer.value = window.setTimeout(reset, 700)
@@ -203,6 +229,16 @@ async function completeChallenge() {
     status.value = 'error'
     errorMessage.value = error instanceof Error ? error.message : '验证失败，请重试'
   }
+}
+
+function onImageLoaded() {
+  isImageLoaded.value = true
+}
+
+function onImageError() {
+  isImageLoaded.value = false
+  status.value = 'error'
+  errorMessage.value = '验证图片加载失败，请点击刷新重试'
 }
 
 function onDocumentKeydown(event: KeyboardEvent) {
@@ -255,14 +291,15 @@ onBeforeUnmount(() => {
 })
 
 useEventListener(document, 'keydown', onDocumentKeydown)
+
+useResizeObserver(track, ([entry]) => {
+  trackWidth.value = entry?.contentRect.width ?? 0
+})
 </script>
 
 <template>
   <Teleport to="body">
-    <div
-      class="fixed inset-0 z-50 grid place-items-center bg-black/55 px-[16px] backdrop-blur-[2px]"
-      @click.self="emit('close')"
-    >
+    <div class="fixed inset-0 z-50" @click.self="emit('close')">
       <section
         ref="dialog"
         role="dialog"
@@ -270,21 +307,17 @@ useEventListener(document, 'keydown', onDocumentKeydown)
         :aria-labelledby="titleId"
         :aria-describedby="hintId"
         tabindex="-1"
-        class="w-full max-w-[360px] rounded-[16px] border border-zinc-200 bg-white p-[18px] shadow-2xl outline-none dark:border-zinc-700 dark:bg-zinc-900"
+        class="fixed top-[20%] left-1/2 h-[270px] w-[340px] -translate-x-1/2 rounded border border-zinc-200 bg-white p-[10px] text-sm shadow-2xl outline-none dark:border-zinc-900 dark:bg-zinc-800"
       >
-        <header class="flex items-center justify-between gap-[12px]">
-          <div>
-            <h2 :id="titleId" class="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-              请完成安全验证
-            </h2>
-            <p :id="hintId" class="mt-[3px] text-xs text-zinc-500 dark:text-zinc-400">
-              支持鼠标、触摸和键盘方向键
-            </p>
+        <header class="mb-[10px] flex h-[40px] items-center px-[10px] text-left">
+          <div class="grow">
+            <h2 :id="titleId" class="text-sm text-zinc-950 dark:text-zinc-50">请完成安全验证</h2>
+            <p :id="hintId" class="sr-only">支持鼠标、触摸和键盘方向键</p>
           </div>
           <div class="flex gap-[6px]">
             <button
               type="button"
-              class="grid size-[32px] place-items-center rounded-[8px] text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-800"
+              class="grid size-[30px] place-items-center rounded-sm text-zinc-500 duration-300 hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-900"
               aria-label="重置验证"
               @click="reset"
             >
@@ -292,7 +325,7 @@ useEventListener(document, 'keydown', onDocumentKeydown)
             </button>
             <button
               type="button"
-              class="grid size-[32px] place-items-center rounded-[8px] text-zinc-500 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-800"
+              class="grid size-[30px] place-items-center rounded-sm text-zinc-500 duration-300 hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-900"
               aria-label="关闭验证"
               @click="emit('close')"
             >
@@ -301,23 +334,15 @@ useEventListener(document, 'keydown', onDocumentKeydown)
           </div>
         </header>
 
-        <div
-          class="relative mt-[16px] h-[142px] overflow-hidden rounded-[12px] bg-[linear-gradient(135deg,#fecdd3,#fda4af_36%,#a5b4fc_36%,#818cf8_70%,#67e8f9_70%)] dark:opacity-90"
-        >
-          <div
-            class="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,.65),transparent_20%),radial-gradient(circle_at_80%_65%,rgba(255,255,255,.4),transparent_25%)]"
-          />
-          <div
-            class="absolute top-[48px] size-[44px] rounded-[8px] border-2 border-dashed border-white/90 bg-black/10 shadow-inner"
-            :style="targetStyle"
-            aria-hidden="true"
-          />
-          <div
-            class="absolute top-[48px] size-[44px] rounded-[8px] border-2 border-white/90 bg-white/35 shadow-lg backdrop-blur-[1px]"
-            :style="pieceStyle"
-            aria-hidden="true"
-          />
-        </div>
+        <CaptchaPuzzle
+          :key="challenge.imageUrl"
+          :image-url="challenge.imageUrl"
+          :progress="progress"
+          :target-progress="challenge.targetProgress"
+          :target-y="challenge.targetY"
+          @loaded="onImageLoaded"
+          @error="onImageError"
+        />
 
         <div
           ref="track"
@@ -327,8 +352,10 @@ useEventListener(document, 'keydown', onDocumentKeydown)
           aria-valuemin="0"
           aria-valuemax="100"
           :aria-valuenow="Math.round(progress)"
+          :aria-valuetext="alignmentHint"
           :aria-busy="status === 'verifying'"
-          class="relative mt-[14px] h-[40px] touch-none rounded-[10px] bg-zinc-100 outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:bg-zinc-800"
+          :aria-disabled="!isImageLoaded || status === 'verifying'"
+          class="relative mt-[10px] h-[40px] touch-none bg-zinc-100 outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:bg-zinc-900"
           @pointerdown="onPointerDown"
           @pointermove="onPointerMove"
           @pointerup="onPointerUp"
@@ -336,11 +363,11 @@ useEventListener(document, 'keydown', onDocumentKeydown)
           @keydown="onKeydown"
         >
           <div
-            class="absolute inset-y-0 left-0 rounded-[10px] bg-red-100 dark:bg-red-950/60"
+            class="absolute inset-y-0 left-0 bg-red-100 dark:bg-red-950/60"
             :style="progressStyle"
           />
           <div
-            class="absolute top-[2px] grid size-[36px] cursor-grab place-items-center rounded-[9px] bg-red-500 text-sm font-bold text-white shadow-md active:cursor-grabbing"
+            class="absolute top-[2px] grid size-[36px] cursor-grab place-items-center bg-red-500 text-sm font-bold text-white shadow-md active:cursor-grabbing"
             :style="knobStyle"
             aria-hidden="true"
           >
@@ -349,7 +376,7 @@ useEventListener(document, 'keydown', onDocumentKeydown)
         </div>
 
         <p
-          class="mt-[10px] min-h-[20px] text-center text-xs"
+          class="sr-only"
           :class="status === 'error' ? 'text-red-500' : 'text-zinc-500 dark:text-zinc-400'"
           :role="status === 'error' ? 'alert' : 'status'"
         >

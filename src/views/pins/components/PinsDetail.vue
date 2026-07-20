@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowRef, toRef, useTemplateRef } from 'vue'
+import { computed, shallowRef, toRef } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 
@@ -16,7 +16,6 @@ interface Props {
 
 const props = defineProps<Props>()
 const router = useRouter()
-const closeButton = useTemplateRef<HTMLButtonElement>('closeButton')
 const isLiked = shallowRef(false)
 const { detail, isLoading, errorMessage, retry } = usePexelsDetail(toRef(props, 'id'))
 const { shareItem } = usePexelsShare()
@@ -49,28 +48,16 @@ function share() {
 }
 
 onKeyStroke('Escape', close)
-
-onMounted(() => {
-  if (!isMobileTerminal.value) {
-    closeButton.value?.focus()
-  }
-})
 </script>
 
 <template>
   <section
-    class="h-full overflow-y-auto overscroll-contain bg-zinc-100/95 text-zinc-900 backdrop-blur-2xl dark:bg-zinc-950/95 dark:text-zinc-100"
+    class="h-full overflow-y-auto bg-white pb-[20px] text-zinc-900 backdrop-blur-3xl xl:bg-transparent xl:p-[20px] dark:bg-zinc-800 dark:text-zinc-100"
     role="dialog"
     aria-modal="true"
     :aria-label="detail ? `作品详情：${detail.title}` : '作品详情'"
   >
-    <MNavbar
-      v-if="isMobileTerminal"
-      sticky
-      right-label="分享作品"
-      @left-click="close"
-      @right-click="share"
-    >
+    <MNavbar v-if="isMobileTerminal" sticky @left-click="close" @right-click="share">
       {{ detail?.title || '作品详情' }}
       <template #right>
         <MSvgIcon name="share" :size="21" />
@@ -79,9 +66,8 @@ onMounted(() => {
 
     <button
       v-else
-      ref="closeButton"
       type="button"
-      class="fixed top-[20px] right-[20px] z-20 grid size-[44px] place-items-center rounded-full border border-white/15 bg-zinc-950/70 text-white shadow-lg backdrop-blur-xl transition-[background-color,transform] hover:scale-105 hover:bg-zinc-900 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none motion-reduce:transition-none"
+      class="absolute top-[20px] right-[20px] z-20 grid size-[30px] place-items-center rounded text-zinc-400 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-900"
       aria-label="关闭作品详情"
       @click="close"
     >
@@ -115,30 +101,29 @@ onMounted(() => {
       </div>
     </div>
 
-    <div
-      v-else-if="detail"
-      class="mx-auto min-h-full w-full xl:flex xl:max-w-[1320px] xl:items-center xl:px-[48px] xl:py-[32px]"
-    >
+    <div v-else-if="detail" class="mx-auto min-h-full w-full xl:flex xl:h-full xl:min-h-0 xl:w-4/5">
       <article
-        class="overflow-hidden bg-white shadow-2xl xl:grid xl:max-h-[calc(100dvh-64px)] xl:w-full xl:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)] xl:rounded-[20px] dark:bg-zinc-900"
+        class="w-full bg-white xl:flex xl:h-full xl:overflow-hidden xl:rounded-lg dark:bg-zinc-900"
       >
-        <div class="grid min-h-[45dvh] place-items-center bg-zinc-950 xl:min-h-0">
+        <div class="w-full xl:h-full xl:w-3/5">
           <img
             :src="detail.photo"
             :alt="detail.title"
             :width="detail.photoWidth"
             :height="detail.photoHeight"
-            class="max-h-[72dvh] w-full object-contain xl:h-[calc(100dvh-64px)] xl:max-h-[840px]"
+            class="mb-[20px] w-screen xl:mb-0 xl:h-full xl:w-full xl:rounded-l-lg"
             :style="{ aspectRatio: imageAspectRatio }"
             decoding="async"
           />
         </div>
 
-        <div class="flex min-h-[260px] flex-col p-[20px] xl:min-h-0 xl:overflow-y-auto xl:p-[32px]">
-          <div class="hidden items-center justify-between xl:flex">
+        <div
+          class="flex min-h-[220px] flex-col px-[10px] xl:h-full xl:min-h-0 xl:w-2/5 xl:overflow-y-auto xl:rounded-r-lg xl:p-[30px]"
+        >
+          <div class="mb-[20px] hidden items-center justify-between xl:flex">
             <button
               type="button"
-              class="grid size-[42px] place-items-center rounded-[10px] text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-200 dark:hover:bg-zinc-800"
+              class="grid size-[40px] place-items-center rounded p-[10px] text-zinc-700 transition-colors hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-200 dark:hover:bg-zinc-800"
               aria-label="分享作品"
               @click="share"
             >
@@ -147,7 +132,7 @@ onMounted(() => {
 
             <button
               type="button"
-              class="grid size-[42px] place-items-center rounded-[10px] transition-colors focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
+              class="grid size-[40px] place-items-center rounded transition-colors focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
               :class="
                 isLiked
                   ? 'bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400'
@@ -161,11 +146,13 @@ onMounted(() => {
             </button>
           </div>
 
-          <h1 class="text-lg font-bold text-balance xl:mt-[36px] xl:text-xl">{{ detail.title }}</h1>
+          <h1 class="ml-[10px] text-base font-bold text-balance xl:mb-[50px] xl:text-xl">
+            {{ detail.title }}
+          </h1>
 
           <a
             :href="detail.authorLike"
-            class="mt-[18px] flex w-fit items-center gap-[10px] rounded-[10px] focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-4 focus-visible:outline-none dark:focus-visible:ring-offset-zinc-900"
+            class="mt-[10px] flex w-fit items-center rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-4 focus-visible:outline-none dark:focus-visible:ring-offset-zinc-900"
             :target="detail.authorLike ? '_blank' : undefined"
             :rel="detail.authorLike ? 'noreferrer' : undefined"
             @click="!detail.authorLike && $event.preventDefault()"
@@ -173,38 +160,12 @@ onMounted(() => {
             <img
               :src="detail.avatar"
               alt=""
-              class="size-[42px] rounded-full bg-zinc-200 object-cover dark:bg-zinc-700"
-              width="42"
-              height="42"
+              class="size-[30px] rounded-full bg-zinc-200 object-cover dark:bg-zinc-700"
+              width="30"
+              height="30"
             />
-            <span class="text-sm font-medium">{{ detail.author }}</span>
+            <span class="ml-[10px] text-base">{{ detail.author }}</span>
           </a>
-
-          <ul
-            v-if="detail.tags?.length"
-            class="mt-[24px] flex flex-wrap gap-[8px]"
-            aria-label="作品标签"
-          >
-            <li
-              v-for="tag in detail.tags"
-              :key="tag"
-              class="rounded-full bg-zinc-100 px-[12px] py-[6px] text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
-            >
-              #{{ tag }}
-            </li>
-          </ul>
-
-          <div class="mt-auto flex gap-[10px] pt-[32px] xl:hidden">
-            <MButton
-              class="flex-1"
-              variant="neutral"
-              icon="heart"
-              :aria-label="isLiked ? '取消收藏' : '收藏作品'"
-              :aria-pressed="isLiked"
-              @click="isLiked = !isLiked"
-            />
-            <MButton class="flex-1" @click="share">分享作品</MButton>
-          </div>
         </div>
       </article>
     </div>

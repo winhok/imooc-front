@@ -6,7 +6,6 @@ import { storeToRefs } from 'pinia'
 
 import type { Category } from '@/api/category'
 import { useCategoryStore } from '@/stores/category'
-import HeaderMy from '@/views/layout/components/header/header-my.vue'
 
 import CategoryMenu from '../../menu/index.vue'
 
@@ -73,19 +72,19 @@ useResizeObserver(scroller, updateSlider)
 
 <template>
   <div
-    class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur transition-colors duration-300 motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-900/95"
+    class="sticky top-0 left-0 z-30 bg-white transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-900"
   >
     <div
       ref="scroller"
-      class="[scrollbar-width:none] overflow-x-auto pr-[100px] [&::-webkit-scrollbar]:hidden"
+      class="[scrollbar-width:none] overflow-x-auto pr-[54px] [&::-webkit-scrollbar]:hidden"
     >
       <div
-        class="relative flex min-w-max gap-[2px] px-[10px] py-[5px]"
+        class="relative flex min-w-max px-[10px] py-[10px] text-xs text-zinc-600"
         role="tablist"
         aria-label="作品分类"
       >
         <span
-          class="pointer-events-none absolute top-[5px] left-0 h-[30px] rounded-full bg-zinc-950 transition-[width,transform,background-color] duration-200 ease-out motion-reduce:transition-none dark:bg-zinc-100"
+          class="pointer-events-none absolute top-[10px] left-0 h-[22px] rounded-lg bg-zinc-900 transition-[width,transform,background-color] duration-200 ease-out motion-reduce:transition-none dark:bg-zinc-800"
           :style="sliderStyle"
           aria-hidden="true"
         />
@@ -96,11 +95,11 @@ useResizeObserver(scroller, updateSlider)
           :ref="(element) => setCategoryRef(category.id, element)"
           type="button"
           role="tab"
-          class="relative z-10 h-[30px] shrink-0 rounded-full px-[12px] text-xs font-medium whitespace-nowrap transition-colors duration-200"
+          class="relative z-10 h-[22px] shrink-0 px-[15px] py-[5px] leading-[12px] whitespace-nowrap transition-colors duration-200 last:mr-[40px]"
           :class="
             selectedCategoryId === category.id
-              ? 'text-white dark:text-zinc-950'
-              : 'text-zinc-600 active:text-zinc-950 dark:text-zinc-400 dark:active:text-zinc-100'
+              ? 'text-zinc-100'
+              : 'text-zinc-600 dark:text-zinc-400'
           "
           :aria-selected="selectedCategoryId === category.id"
           @click="selectCategory(category)"
@@ -110,15 +109,9 @@ useResizeObserver(scroller, updateSlider)
       </div>
     </div>
 
-    <div
-      class="absolute top-0 right-[54px] grid h-[40px] place-items-center bg-white px-[3px] transition-colors dark:bg-zinc-900"
-    >
-      <HeaderMy />
-    </div>
-
     <button
       type="button"
-      class="absolute top-0 right-0 grid h-[40px] w-[54px] place-items-center bg-white text-zinc-900 shadow-left-white transition-colors active:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-left-zinc dark:active:bg-zinc-800"
+      class="absolute top-0 right-0 z-20 grid h-[40px] w-[54px] place-items-center bg-white text-zinc-900 shadow-left-white transition-colors active:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100 dark:shadow-left-zinc dark:active:bg-zinc-800"
       aria-label="查看所有分类"
       aria-controls="category-menu-popup"
       :aria-expanded="isPopupOpen"

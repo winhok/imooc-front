@@ -42,13 +42,13 @@ function submit() {
 </script>
 
 <template>
-  <form class="space-y-[18px]" @submit.prevent="submit">
-    <div>
+  <form class="space-y-[20px]" @submit.prevent="submit">
+    <div class="xl:flex xl:items-center">
       <label
         for="profile-nickname"
-        class="mb-[7px] block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+        class="mb-[10px] block w-[80px] text-sm font-bold text-zinc-800 xl:mb-0 dark:text-zinc-300"
       >
-        昵称
+        用户名
       </label>
       <MInput
         id="profile-nickname"
@@ -71,11 +71,11 @@ function submit() {
       </p>
     </div>
 
-    <div class="grid gap-[18px] sm:grid-cols-2">
-      <div>
+    <div class="space-y-[20px]">
+      <div class="xl:flex xl:items-center">
         <label
           for="profile-title"
-          class="mb-[7px] block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+          class="mb-[10px] block w-[80px] text-sm font-bold text-zinc-800 xl:mb-0 dark:text-zinc-300"
         >
           职位
         </label>
@@ -88,10 +88,10 @@ function submit() {
           :disabled="loading"
         />
       </div>
-      <div>
+      <div class="xl:flex xl:items-center">
         <label
           for="profile-company"
-          class="mb-[7px] block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+          class="mb-[10px] block w-[80px] text-sm font-bold text-zinc-800 xl:mb-0 dark:text-zinc-300"
         >
           公司
         </label>
@@ -106,10 +106,10 @@ function submit() {
       </div>
     </div>
 
-    <div>
+    <div class="xl:flex xl:items-center">
       <label
         for="profile-home-page"
-        class="mb-[7px] block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+        class="mb-[10px] block w-[80px] text-sm font-bold text-zinc-800 xl:mb-0 dark:text-zinc-300"
       >
         个人主页
       </label>
@@ -124,10 +124,10 @@ function submit() {
       />
     </div>
 
-    <div>
+    <div class="xl:flex">
       <label
         for="profile-introduction"
-        class="mb-[7px] block text-sm font-medium text-zinc-800 dark:text-zinc-200"
+        class="mb-[10px] block w-[80px] shrink-0 text-sm font-bold text-zinc-800 xl:mb-0 dark:text-zinc-300"
       >
         个人介绍
       </label>
@@ -142,8 +142,10 @@ function submit() {
       />
     </div>
 
-    <MButton class="w-full sm:w-[180px]" native-type="submit" :loading="loading">
-      保存修改
-    </MButton>
+    <div class="flex justify-center">
+      <MButton class="w-full xl:w-[160px]" native-type="submit" :loading="loading">
+        保存修改
+      </MButton>
+    </div>
   </form>
 </template>

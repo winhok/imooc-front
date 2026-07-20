@@ -150,18 +150,6 @@ async function onCaptchaSuccess() {
         />
       </div>
 
-      <p class="mb-[13px] text-center text-xs text-zinc-500 dark:text-zinc-400">
-        注册即表示同意
-        <a
-          href="https://m.imooc.com/newfaq?id=89"
-          target="_blank"
-          rel="noreferrer"
-          class="text-red-500 hover:text-red-600 focus-visible:rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
-        >
-          《慕课网注册协议》
-        </a>
-      </p>
-
       <p
         v-if="submitError"
         role="alert"
@@ -169,6 +157,27 @@ async function onCaptchaSuccess() {
       >
         {{ submitError }}
       </p>
+
+      <div class="pt-[10px] pb-[30px] text-right leading-none">
+        <div class="mb-[20px]">
+          <RouterLink
+            to="/login"
+            class="inline-block cursor-pointer p-[10px] text-sm text-zinc-400 duration-300 hover:text-zinc-600 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-600 dark:hover:text-zinc-400"
+          >
+            去登录
+          </RouterLink>
+        </div>
+        <p class="text-center text-sm leading-normal text-zinc-400 dark:text-zinc-600">
+          <a
+            href="https://m.imooc.com/newfaq?id=89"
+            target="_blank"
+            rel="noreferrer"
+            class="duration-300 hover:text-zinc-600 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:text-zinc-400"
+          >
+            注册即同意《慕课网注册协议》
+          </a>
+        </p>
+      </div>
 
       <MButton
         native-type="submit"
@@ -180,20 +189,10 @@ async function onCaptchaSuccess() {
       </MButton>
     </form>
 
-    <template #footer>
-      已有账号？
-      <RouterLink
-        to="/login"
-        class="font-medium text-red-500 hover:text-red-600 focus-visible:rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
-      >
-        返回登录
-      </RouterLink>
-    </template>
+    <SliderCaptcha
+      v-if="isCaptchaVisible"
+      @close="isCaptchaVisible = false"
+      @success="onCaptchaSuccess"
+    />
   </AuthShell>
-
-  <SliderCaptcha
-    v-if="isCaptchaVisible"
-    @close="isCaptchaVisible = false"
-    @success="onCaptchaSuccess"
-  />
 </template>

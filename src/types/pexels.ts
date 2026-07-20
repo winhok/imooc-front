@@ -23,6 +23,8 @@ export interface PexelsListParams {
 export interface PexelsListResponse {
   list: PexelsItem[]
   total?: number
+  /** Number of records returned by the backend before invalid records were removed. */
+  sourceLength: number
 }
 
 export interface PexelsHintResponse {

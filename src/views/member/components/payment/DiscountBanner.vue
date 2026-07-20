@@ -12,13 +12,15 @@ defineEmits<{
 
 <template>
   <div
-    class="flex min-h-[34px] items-center justify-center gap-[7px] rounded-[10px] border border-orange-200 bg-orange-50 px-[12px] py-[7px] text-center text-xs font-semibold text-red-600 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300"
+    class="flex min-h-[34px] items-center justify-center gap-[7px] border-t border-orange-300 bg-orange-100 px-[12px] py-[5px] text-center text-xs font-bold text-red-600 xl:rounded-sm xl:border dark:text-red-500"
     role="status"
   >
     <MSvgIcon name="countdown" :size="15" />
     <span>
-      限时特惠 · 距优惠结束
-      <MCountDown :time="time" class="font-mono tabular-nums" @finish="$emit('finish')" />
+      限时特惠 | 距离优惠结束仅剩
+      <span class="font-mono tabular-nums">
+        <MCountDown :time="time" @finish="$emit('finish')" />
+      </span>
     </span>
   </div>
 </template>

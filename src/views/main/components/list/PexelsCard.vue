@@ -74,11 +74,11 @@ async function closeFullscreen() {
 
 <template>
   <article
-    class="h-full overflow-hidden rounded-[12px] bg-white shadow-sm ring-1 ring-black/5 transition-[background-color,box-shadow] duration-300 hover:shadow-md dark:bg-zinc-900 dark:ring-white/10 xl:dark:bg-zinc-900"
+    class="h-full overflow-hidden rounded bg-white pb-[10px] transition-colors duration-300 dark:bg-zinc-900 xl:dark:bg-zinc-800"
   >
     <div
       ref="preview"
-      class="group relative grid w-full overflow-hidden rounded-t-[12px] bg-zinc-950"
+      class="group relative grid w-full cursor-zoom-in overflow-hidden rounded bg-zinc-950"
       :class="isFullscreen ? 'h-dvh place-items-center rounded-none' : ''"
     >
       <MLazyImage
@@ -101,7 +101,7 @@ async function closeFullscreen() {
       </RouterLink>
 
       <div
-        class="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-zinc-950/55 via-transparent to-transparent transition-opacity duration-200 motion-reduce:transition-none xl:opacity-0 xl:group-focus-within:opacity-100 xl:group-hover:opacity-100"
+        class="pointer-events-none absolute inset-0 z-20 hidden bg-zinc-950/50 opacity-0 transition-opacity duration-300 motion-reduce:transition-none xl:block xl:group-focus-within:opacity-100 xl:group-hover:opacity-100"
       >
         <div
           class="pointer-events-auto absolute right-[8px] bottom-[8px] flex items-center gap-[6px] xl:right-[10px] xl:bottom-[10px]"
@@ -143,22 +143,22 @@ async function closeFullscreen() {
       </div>
     </div>
 
-    <div class="px-[12px] pt-[10px] pb-[12px]">
+    <div class="px-[10px] pt-[10px]">
       <h2
-        class="line-clamp-2 h-[40px] text-[14px] leading-[20px] font-semibold text-zinc-900 dark:text-zinc-100"
+        class="line-clamp-2 min-h-[40px] text-sm leading-[20px] font-bold text-zinc-900 dark:text-zinc-300"
       >
         {{ item.title }}
       </h2>
 
-      <div class="mt-[10px] flex h-[24px] items-center gap-[8px]">
+      <div class="mt-[10px] flex h-[20px] items-center">
         <img
           :src="item.avatar"
           alt=""
-          class="size-[24px] rounded-full bg-zinc-200 object-cover dark:bg-zinc-700"
+          class="size-[20px] rounded-full bg-zinc-200 object-cover dark:bg-zinc-700"
           loading="lazy"
           decoding="async"
         />
-        <span class="truncate text-[13px] text-zinc-500 dark:text-zinc-400">
+        <span class="ml-[10px] truncate text-sm text-zinc-500 dark:text-zinc-400">
           {{ item.author }}
         </span>
       </div>

@@ -107,13 +107,16 @@ onBeforeUnmount(releaseObjectUrl)
 </script>
 
 <template>
-  <section class="flex flex-col items-center" aria-labelledby="avatar-title">
-    <h2 id="avatar-title" class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+  <section class="flex flex-col items-center xl:block" aria-labelledby="avatar-title">
+    <h2
+      id="avatar-title"
+      class="mb-[20px] inline-block w-[80px] text-sm font-bold text-zinc-900 xl:mx-auto xl:block dark:text-zinc-300"
+    >
       我的头像
     </h2>
     <button
       type="button"
-      class="group relative mt-[12px] grid size-[112px] place-items-center overflow-hidden rounded-full bg-zinc-900 text-xl font-bold text-white ring-4 ring-zinc-100 transition-transform hover:scale-[1.02] focus-visible:ring-4 focus-visible:ring-red-300 focus-visible:outline-none disabled:cursor-wait disabled:opacity-70 motion-reduce:transition-none dark:bg-zinc-100 dark:text-zinc-950 dark:ring-zinc-800"
+      class="group relative grid size-[80px] place-items-center overflow-hidden rounded-full bg-zinc-900 text-xl font-bold text-white focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:outline-none disabled:cursor-wait disabled:opacity-70 dark:bg-zinc-100 dark:text-zinc-950"
       :disabled="loading"
       aria-label="选择新头像"
       @click="chooseFile"
@@ -126,15 +129,15 @@ onBeforeUnmount(releaseObjectUrl)
       />
       <span v-else aria-hidden="true">{{ initial }}</span>
       <span
-        class="absolute inset-0 grid place-items-center bg-zinc-950/65 text-xs font-medium opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+        class="absolute inset-0 hidden place-items-center bg-black/40 text-xs font-medium text-white group-hover:grid group-focus-visible:grid"
       >
         {{ loading ? '上传中…' : '更换头像' }}
       </span>
     </button>
     <p
-      class="mt-[12px] max-w-[220px] text-center text-xs leading-relaxed text-zinc-500 dark:text-zinc-400"
+      class="mt-[10px] max-w-[100px] text-center text-xs leading-relaxed text-zinc-500 dark:text-zinc-400"
     >
-      支持 JPG、PNG、WebP，最大 5 MiB，上传时裁剪为正方形
+      支持 jpg、png、jpeg 格式大小 5M 以内的图片
     </p>
     <input
       ref="input"

@@ -29,10 +29,7 @@ const errorId = computed(() => `${inputId}-error`)
 
 <template>
   <div class="text-left">
-    <label
-      :for="inputId"
-      class="mb-[7px] block text-sm font-medium text-zinc-700 dark:text-zinc-200"
-    >
+    <label :for="inputId" class="sr-only">
       {{ label }}
     </label>
     <input
@@ -45,12 +42,12 @@ const errorId = computed(() => `${inputId}-error`)
       :placeholder="placeholder"
       :aria-invalid="error ? true : undefined"
       :aria-describedby="error ? errorId : undefined"
-      class="h-[44px] w-full rounded-[10px] border bg-white px-[13px] text-sm text-zinc-900 transition-[border-color,box-shadow,background-color] outline-none placeholder:text-zinc-400 focus:border-red-400 focus:ring-3 focus:ring-red-100 motion-reduce:transition-none dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:focus:ring-red-950/60"
-      :class="error ? 'border-red-400' : 'border-zinc-200 dark:border-zinc-700'"
+      class="h-[40px] w-full border-0 border-b bg-transparent px-[10px] pb-[10px] text-base text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-b-red-500 motion-reduce:transition-none dark:text-zinc-400 dark:placeholder:text-zinc-600 xl:dark:bg-zinc-900"
+      :class="error ? 'border-b-red-500' : 'border-b-zinc-400'"
     />
     <p
       :id="errorId"
-      class="mt-[5px] min-h-[18px] text-xs leading-[18px] text-red-500"
+      class="mt-[5px] min-h-[18px] text-sm leading-[18px] text-red-600"
       :aria-live="error ? 'polite' : undefined"
     >
       {{ error || '' }}

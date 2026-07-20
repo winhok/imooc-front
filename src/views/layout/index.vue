@@ -8,7 +8,7 @@ defineOptions({ name: 'DesktopLayout' })
 
 <template>
   <div
-    class="grid h-dvh grid-rows-[72px_minmax(0,1fr)] bg-zinc-50 transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-950"
+    class="grid h-dvh grid-rows-[60px_minmax(0,1fr)] bg-white transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-800"
   >
     <DesktopHeader />
     <LayoutMain />

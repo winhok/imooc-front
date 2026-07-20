@@ -40,14 +40,14 @@ onBeforeUnmount(() => guide.value?.destroy())
 
 <template>
   <aside
-    class="pointer-events-none fixed right-[24px] bottom-[24px] z-30 flex flex-col items-end gap-[10px]"
+    class="pointer-events-none fixed right-[20px] bottom-[100px] z-30 flex flex-col items-end gap-[10px]"
     aria-label="悬浮操作区"
   >
     <slot />
 
     <button
       type="button"
-      class="pointer-events-auto grid size-[44px] place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition-[color,background-color,transform,box-shadow] hover:-translate-y-[2px] hover:text-red-500 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-red-400 dark:focus-visible:ring-offset-zinc-950"
+      class="pointer-events-auto grid size-[40px] place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition-[color,box-shadow] hover:text-red-500 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-0 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-red-400 dark:focus-visible:ring-offset-zinc-950"
       aria-label="开始功能引导"
       data-tour="guide"
       @click="startGuide"
@@ -59,7 +59,7 @@ onBeforeUnmount(() => guide.value?.destroy())
       <template #reference="{ isOpen }">
         <button
           type="button"
-          class="grid size-[44px] place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-lg transition-[color,background-color,transform,box-shadow] hover:-translate-y-[2px] hover:text-red-500 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-red-400 dark:focus-visible:ring-offset-zinc-950"
+          class="grid size-[40px] place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 transition-[color,box-shadow] hover:text-red-500 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:border-0 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:text-red-400 dark:focus-visible:ring-offset-zinc-950"
           aria-label="打开意见反馈"
           :aria-expanded="isOpen"
           data-tour="feedback"

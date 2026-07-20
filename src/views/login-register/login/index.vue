@@ -119,6 +119,15 @@ async function onCaptchaSuccess() {
         {{ submitError }}
       </p>
 
+      <div class="pt-[10px] pb-[30px] text-right leading-none">
+        <RouterLink
+          to="/register"
+          class="inline-block cursor-pointer p-[10px] text-sm text-zinc-400 duration-300 hover:text-zinc-600 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-600 dark:hover:text-zinc-400"
+        >
+          去注册
+        </RouterLink>
+      </div>
+
       <MButton native-type="submit" class="w-full" :loading="isLoggingIn" :active-animation="false">
         登录
       </MButton>
@@ -126,20 +135,10 @@ async function onCaptchaSuccess() {
 
     <OAuthProviderButtons :return-to="redirectTarget" />
 
-    <template #footer>
-      还没有账号？
-      <RouterLink
-        to="/register"
-        class="font-medium text-red-500 hover:text-red-600 focus-visible:rounded focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none"
-      >
-        立即注册
-      </RouterLink>
-    </template>
+    <SliderCaptcha
+      v-if="isCaptchaVisible"
+      @close="isCaptchaVisible = false"
+      @success="onCaptchaSuccess"
+    />
   </AuthShell>
-
-  <SliderCaptcha
-    v-if="isCaptchaVisible"
-    @close="isCaptchaVisible = false"
-    @success="onCaptchaSuccess"
-  />
 </template>

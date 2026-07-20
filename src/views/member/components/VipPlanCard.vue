@@ -16,36 +16,34 @@ defineEmits<{
 <template>
   <button
     type="button"
-    class="relative flex w-[124px] shrink-0 flex-col items-center rounded-[16px] border px-[12px] py-[18px] text-center transition-[border-color,background-color,box-shadow,transform] duration-200 hover:-translate-y-[2px] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none motion-reduce:transform-none motion-reduce:transition-none xl:w-full"
+    class="relative mt-[20px] mr-[20px] flex w-[100px] shrink-0 flex-col items-center rounded-md border py-[30px] text-center transition-colors hover:border-orange-300 hover:bg-orange-50 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none xl:w-[150px] xl:py-[20px] dark:hover:bg-orange-50/10"
     :class="
       selected
-        ? 'border-amber-400 bg-amber-50 shadow-[0_12px_30px_rgb(245_158_11/0.12)] dark:border-amber-500 dark:bg-amber-500/10'
-        : 'border-zinc-200 bg-white hover:border-amber-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-amber-600'
+        ? 'border-orange-300 bg-orange-50 dark:bg-orange-50/10'
+        : 'border-zinc-300 bg-white dark:border-zinc-500 dark:bg-zinc-900'
     "
     :aria-pressed="selected"
     @click="$emit('select', plan)"
   >
     <span
       v-if="plan.isHot"
-      class="absolute -top-[10px] right-[8px] rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-[9px] py-[3px] text-[11px] leading-none font-semibold text-white shadow-sm"
+      class="absolute -top-[12px] -right-px h-[22px] w-[48px] rounded-tr-[10px] rounded-bl-[10px] bg-linear-to-r from-orange-300 to-orange-100 text-[12px] leading-[22px] text-yellow-700"
     >
       热销
     </span>
     <span
-      class="text-sm font-semibold"
+      class="text-base"
       :class="selected ? 'text-amber-800 dark:text-amber-300' : 'text-zinc-800 dark:text-zinc-200'"
     >
       {{ plan.title }}
     </span>
     <span
-      class="mt-[10px] flex items-baseline font-sans font-bold tracking-tight"
+      class="flex items-baseline font-sans font-bold tracking-tighter"
       :class="selected ? 'text-amber-700 dark:text-amber-300' : 'text-zinc-900 dark:text-zinc-100'"
     >
       <span class="text-sm">¥</span>
       <span class="text-[32px] leading-none">{{ plan.price }}</span>
     </span>
-    <span class="mt-[7px] text-xs text-zinc-400 line-through dark:text-zinc-500">
-      ¥{{ plan.oldPrice }}
-    </span>
+    <span class="text-xs text-yellow-500 line-through"> ¥{{ plan.oldPrice }} </span>
   </button>
 </template>

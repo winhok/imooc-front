@@ -20,27 +20,21 @@ defineEmits<{
 <template>
   <button
     type="button"
-    class="flex w-full items-center rounded-[14px] border border-zinc-200 bg-white text-left transition-colors hover:border-blue-300 hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-blue-600 dark:hover:bg-blue-500/10"
-    :class="
-      compact ? 'gap-[12px] px-[14px] py-[14px]' : 'max-w-[280px] gap-[14px] px-[18px] py-[16px]'
-    "
+    class="flex w-full items-center rounded-sm border border-zinc-200 bg-white text-left transition-colors hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+    :class="compact ? 'gap-[12px] px-[20px] py-[20px]' : 'h-[60px] gap-[10px] px-[20px]'"
     :disabled="loading"
     :aria-busy="loading"
     @click="$emit('select')"
   >
-    <span
-      class="grid size-[38px] shrink-0 place-items-center rounded-[10px] bg-blue-500 text-base font-bold text-white"
-      aria-hidden="true"
-    >
-      支
-    </span>
+    <img
+      src="https://imooc-front.lgdsunday.club/assets/alipay.e4ca2d5f.png"
+      alt=""
+      class="size-[40px] shrink-0"
+    />
     <span class="min-w-0 flex-1">
-      <span class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+      <span class="block text-xl text-zinc-800 dark:text-zinc-200">
         {{ loading ? '正在前往支付宝' : '支付宝' }}
       </span>
-      <span class="mt-[2px] block text-xs text-zinc-500 dark:text-zinc-400"
-        >安全便捷，即时到账</span
-      >
     </span>
     <MSvgIcon v-if="compact" name="chevron-down" :size="16" class="-rotate-90 text-zinc-400" />
   </button>

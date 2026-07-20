@@ -41,14 +41,14 @@ useResizeObserver(categoryList, updateExpandableState)
 
 <template>
   <div
-    class="sticky top-0 left-0 z-30 border-b border-zinc-100 bg-white/95 backdrop-blur transition-colors duration-300 motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-900/95"
+    class="sticky top-0 left-0 z-30 w-full bg-white transition-colors duration-300 motion-reduce:transition-none dark:bg-zinc-800"
   >
-    <div class="relative mx-auto max-w-[1024px] px-[24px]">
+    <div class="relative mx-auto w-[800px]">
       <ul
         id="desktop-category-list"
         ref="categoryList"
-        class="flex flex-wrap content-start gap-x-[6px] gap-y-[8px] overflow-hidden py-[8px] pr-[48px] transition-[max-height] duration-300 ease-out motion-reduce:transition-none"
-        :class="isExpanded ? 'max-h-[50dvh] overflow-y-auto' : 'max-h-[52px]'"
+        class="flex flex-wrap justify-center overflow-hidden px-[10px] py-[10px] pr-[48px] text-xs text-zinc-600 transition-[height] duration-300 motion-reduce:transition-none"
+        :class="isExpanded ? 'h-[206px] overflow-y-auto' : 'h-[56px]'"
         role="tablist"
         aria-label="作品分类"
       >
@@ -56,11 +56,11 @@ useResizeObserver(categoryList, updateExpandableState)
           <button
             type="button"
             role="tab"
-            class="h-[36px] rounded-[8px] px-[14px] text-sm font-semibold whitespace-nowrap transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+            class="mr-[10px] mb-[10px] h-[40px] cursor-pointer rounded px-[15px] text-base leading-[40px] font-bold whitespace-nowrap text-zinc-900 transition-colors duration-200 hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none motion-reduce:transition-none dark:text-zinc-500 dark:hover:bg-zinc-900 dark:hover:text-zinc-300"
             :class="
               selectedCategoryId === category.id
-                ? 'bg-zinc-950 text-white dark:bg-zinc-100 dark:text-zinc-950'
-                : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+                ? 'bg-zinc-200 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-300'
+                : ''
             "
             :aria-selected="selectedCategoryId === category.id"
             @click="categoryStore.selectCategory(category.id)"
@@ -72,11 +72,11 @@ useResizeObserver(categoryList, updateExpandableState)
 
       <div
         v-if="isExpandable"
-        class="absolute top-[8px] right-[24px] bg-linear-to-l from-white via-white to-white/70 pl-[10px] dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-900/70"
+        class="absolute right-[10px] bottom-[10px] bg-white pl-[10px] dark:bg-zinc-800"
       >
         <button
           type="button"
-          class="grid size-[36px] place-items-center rounded-[8px] text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:outline-none dark:text-zinc-300 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-900"
+          class="grid size-[40px] place-items-center rounded text-zinc-700 transition-colors hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-zinc-300 dark:hover:bg-zinc-900"
           aria-controls="desktop-category-list"
           :aria-expanded="isExpanded"
           :aria-label="isExpanded ? '收起分类' : '展开全部分类'"

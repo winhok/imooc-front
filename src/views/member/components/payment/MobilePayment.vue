@@ -31,7 +31,7 @@ function chooseAlipay() {
 
 <template>
   <section
-    class="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_36px_rgb(24_24_27/0.1)] backdrop-blur-xl xl:hidden dark:border-zinc-700 dark:bg-zinc-900/96"
+    class="fixed inset-x-0 bottom-0 z-30 bg-white pb-[env(safe-area-inset-bottom)] text-center xl:hidden dark:bg-zinc-800"
     aria-label="会员支付"
   >
     <DiscountBanner
@@ -40,20 +40,20 @@ function chooseAlipay() {
       class="rounded-none border-x-0 border-b-0"
       @finish="$emit('discountFinish')"
     />
-    <div class="flex items-center justify-between gap-[12px] px-[14px] py-[10px]">
+    <div class="flex items-center justify-between px-[10px] py-[5px] text-xs">
       <div class="min-w-0">
-        <p class="text-xs text-zinc-600 dark:text-zinc-300">
+        <p class="text-left text-zinc-900 dark:text-zinc-200">
           券后合计
-          <span class="ml-[3px] font-sans text-base font-semibold text-red-600 dark:text-red-400">
+          <span class="ml-[3px] font-sans text-[22px] font-medium text-red-600 dark:text-red-400">
             ¥{{ plan.price }}
           </span>
         </p>
-        <p v-if="savings > 0" class="mt-[2px] truncate text-xs text-red-500 dark:text-red-400">
-          限时立减 ¥{{ savings }}
+        <p v-if="savings > 0" class="mt-[2px] truncate text-left text-red-600">
+          优惠券：限时立减 ¥{{ savings }}
         </p>
       </div>
       <MButton
-        class="w-[124px]"
+        class="w-[120px]"
         :active-animation="false"
         :loading="processing"
         @click="isPaymentSheetOpen = true"
@@ -64,11 +64,12 @@ function chooseAlipay() {
   </section>
 
   <MPopup v-model="isPaymentSheetOpen">
-    <div class="max-h-[80dvh] px-[18px] pt-[18px] pb-[calc(24px+env(safe-area-inset-bottom))]">
-      <div class="mx-auto mb-[16px] h-[4px] w-[42px] rounded-full bg-zinc-200 dark:bg-zinc-700" />
-      <div class="mb-[18px] flex items-center justify-between gap-[16px]">
+    <div
+      class="flex h-[80dvh] max-h-[80dvh] flex-col py-[20px] pb-[calc(24px+env(safe-area-inset-bottom))]"
+    >
+      <div class="mb-[20px] flex items-center justify-between gap-[16px] px-[10px]">
         <div>
-          <h2 class="text-base font-semibold text-zinc-950 dark:text-zinc-50">选择支付方式</h2>
+          <h2 class="text-xl font-bold text-zinc-950 dark:text-zinc-50">选择支付方式</h2>
           <p class="mt-[4px] text-xs text-zinc-500 dark:text-zinc-400">待支付 ¥{{ plan.price }}</p>
         </div>
         <button

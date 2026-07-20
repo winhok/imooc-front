@@ -34,21 +34,17 @@ const providers: readonly {
 </script>
 
 <template>
-  <section class="mt-[20px]" aria-labelledby="oauth-login-title">
+  <section class="mt-[40px]" aria-labelledby="oauth-login-title">
     <span id="qqLoginButton" hidden />
 
-    <div class="flex items-center gap-[12px]">
-      <span class="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-      <h2 id="oauth-login-title" class="text-xs text-zinc-400 dark:text-zinc-500">其他登录方式</h2>
-      <span class="h-px flex-1 bg-zinc-100 dark:bg-zinc-800" />
-    </div>
+    <h2 id="oauth-login-title" class="sr-only">其他登录方式</h2>
 
-    <div class="mt-[14px] grid grid-cols-2 gap-[10px]">
+    <div class="flex justify-around">
       <button
         v-for="provider in providers"
         :key="provider.id"
         type="button"
-        class="inline-flex h-[42px] items-center justify-center gap-[8px] rounded-[10px] border border-zinc-200 bg-white text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-55 motion-reduce:transition-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+        class="grid size-[40px] place-items-center rounded-full focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-55"
         :disabled="Boolean(activeProvider)"
         :aria-busy="activeProvider === provider.id"
         @click="startOAuthLogin(provider.id)"
@@ -58,8 +54,8 @@ const providers: readonly {
           class="size-[16px] animate-spin rounded-full border-2 border-current border-r-transparent motion-reduce:animate-none"
           aria-hidden="true"
         />
-        <MSvgIcon v-else :name="provider.icon" :size="19" :class="provider.iconClass" />
-        {{ provider.name }}
+        <MSvgIcon v-else :name="provider.icon" :size="40" :class="provider.iconClass" />
+        <span class="sr-only">{{ provider.name }}</span>
       </button>
     </div>
 

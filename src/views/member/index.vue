@@ -45,52 +45,23 @@ onMounted(loadPlans)
 
 <template>
   <main
-    class="app-scrollbar h-dvh overflow-auto bg-zinc-100 pb-[116px] transition-colors duration-300 motion-reduce:transition-none xl:pb-[32px] dark:bg-zinc-950"
+    class="app-scrollbar h-full overflow-auto bg-zinc-200 pb-[116px] transition-colors duration-300 motion-reduce:transition-none xl:pt-[10px] xl:pb-0 dark:bg-zinc-800"
   >
     <MNavbar v-if="isMobileTerminal" sticky @left-click="goBack">精选会员</MNavbar>
 
-    <header
-      v-else
-      class="sticky top-0 z-20 border-b border-zinc-200 bg-white/90 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/90"
-    >
-      <div class="mx-auto flex h-[72px] max-w-[1120px] items-center px-[28px]">
-        <button
-          type="button"
-          class="grid size-[40px] place-items-center rounded-[10px] text-zinc-700 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none dark:text-zinc-200 dark:hover:bg-zinc-800"
-          aria-label="返回上一页"
-          @click="goBack"
-        >
-          <MSvgIcon name="back" :size="20" />
-        </button>
-        <h1 class="ml-[14px] text-base font-semibold text-zinc-950 dark:text-zinc-50">精选会员</h1>
-      </div>
-    </header>
-
-    <div class="mx-auto w-full max-w-[1040px] px-[12px] py-[18px] xl:px-[28px] xl:py-[32px]">
+    <div class="mx-auto w-full xl:max-w-[1024px]">
       <section
-        class="overflow-hidden rounded-[22px] border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+        class="min-h-full bg-white transition-colors xl:rounded-sm xl:border xl:border-zinc-200 xl:px-[40px] dark:bg-zinc-900 xl:dark:border-zinc-600"
         aria-labelledby="member-title"
       >
-        <div
-          class="border-b border-amber-100 bg-gradient-to-br from-amber-50 via-orange-50 to-white px-[18px] py-[28px] text-center xl:px-[36px] xl:py-[36px] dark:border-amber-500/15 dark:from-amber-500/10 dark:via-orange-500/5 dark:to-zinc-900"
-        >
-          <div
-            class="mx-auto grid size-[46px] place-items-center rounded-[14px] bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/20"
-          >
-            <MSvgIcon name="crown" :size="25" />
-          </div>
-          <h2
-            id="member-title"
-            class="mt-[14px] text-xl font-bold tracking-[0.08em] text-amber-800 dark:text-amber-300"
-          >
+        <div class="px-[10px] py-[20px] text-center">
+          <h2 id="member-title" class="text-[34px] font-bold tracking-widest text-yellow-600">
             精选 VIP
           </h2>
-          <p class="mt-[7px] text-sm text-amber-700/80 dark:text-amber-200/70">
-            升级精选 VIP，畅享全部内容
-          </p>
+          <p class="text-lg text-yellow-500">升级精选 VIP，畅享全部内容</p>
         </div>
 
-        <div class="px-[14px] py-[20px] xl:px-[34px] xl:py-[30px]">
+        <div class="px-[10px] pb-[20px]">
           <div
             v-if="isLoading"
             class="grid grid-cols-3 gap-[10px] xl:grid-cols-4"
@@ -118,7 +89,7 @@ onMounted(loadPlans)
 
           <template v-else-if="selectedPlan">
             <div
-              class="app-scrollbar flex gap-[10px] overflow-x-auto pt-[10px] pb-[12px] xl:grid xl:grid-cols-4 xl:overflow-visible"
+              class="app-scrollbar mt-[50px] flex justify-between overflow-x-auto pb-[20px]"
               aria-label="会员套餐"
             >
               <VipPlanCard
@@ -129,11 +100,11 @@ onMounted(loadPlans)
                 @select="selectPlan"
               />
             </div>
-            <p class="mt-[4px] min-h-[20px] text-xs text-zinc-500 dark:text-zinc-400">
+            <p class="mt-[10px] min-h-[20px] text-sm text-zinc-500 dark:text-zinc-400">
               {{ selectedPlan.desc }}
             </p>
             <MemberPayment
-              class="mt-[22px]"
+              class="mt-[40px]"
               :plan="selectedPlan"
               :processing="isPaying"
               @purchase="purchase"

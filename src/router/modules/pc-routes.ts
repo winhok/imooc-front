@@ -22,11 +22,17 @@ export const pcRoutes = [
             props: true
           }
         ]
-      }
+      },
+      profileRoute,
+      memberRoute,
+      payResultRoute
     ]
   },
-  memberRoute,
-  payResultRoute,
-  profileRoute,
-  ...authRoutes
+  ...authRoutes,
+  {
+    path: '/404',
+    name: 'not-found',
+    component: () => import('@/views/error-page/NotFoundView.vue')
+  },
+  { path: '/:pathMatch(.*)*', redirect: '/404' }
 ] satisfies RouteRecordRaw[]
