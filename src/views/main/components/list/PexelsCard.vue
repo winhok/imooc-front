@@ -3,6 +3,7 @@ import { computed, useTemplateRef } from 'vue'
 import { useFullscreen } from '@vueuse/core'
 import { RouterLink } from 'vue-router'
 
+import { usePexelsShare } from '@/composables/usePexelsShare'
 import { message } from '@/libs/message'
 import type { PexelsItem } from '@/types/pexels'
 import { colorFromString } from '@/utils/color'
@@ -27,6 +28,7 @@ const placeholderColor = computed(() => colorFromString(props.item.id))
 const preview = useTemplateRef<HTMLElement>('preview')
 const { isFullscreen, isSupported, enter, exit } = useFullscreen(preview, { autoExit: true })
 const { isDownloading, downloadImage } = useImageDownload()
+const { shareItemToWeibo } = usePexelsShare()
 
 function openDetails(event: MouseEvent) {
   if (
@@ -118,6 +120,15 @@ async function closeFullscreen() {
               aria-hidden="true"
             />
             <MSvgIcon v-else name="download" :size="18" />
+          </button>
+
+          <button
+            type="button"
+            class="grid size-[34px] place-items-center rounded-[9px] bg-white/90 text-zinc-900 shadow-sm transition-[background-color,transform] hover:bg-white focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none active:scale-95 motion-reduce:transition-none xl:size-[38px]"
+            :aria-label="`分享到微博：${item.title}`"
+            @click="shareItemToWeibo(item)"
+          >
+            <MSvgIcon name="share" :size="18" />
           </button>
 
           <button

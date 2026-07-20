@@ -3,7 +3,7 @@ import { computed, onMounted, shallowRef, toRef, useTemplateRef } from 'vue'
 import { onKeyStroke } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 
-import { message } from '@/libs/message'
+import { usePexelsShare } from '@/composables/usePexelsShare'
 import { isMobileTerminal } from '@/utils/flexible'
 
 import { usePexelsDetail } from '../usePexelsDetail'
@@ -19,6 +19,7 @@ const router = useRouter()
 const closeButton = useTemplateRef<HTMLButtonElement>('closeButton')
 const isLiked = shallowRef(false)
 const { detail, isLoading, errorMessage, retry } = usePexelsDetail(toRef(props, 'id'))
+const { shareItem } = usePexelsShare()
 
 const imageAspectRatio = computed(() => {
   if (!detail.value || detail.value.photoWidth <= 0 || detail.value.photoHeight <= 0) {
@@ -39,32 +40,12 @@ function close() {
   void router.replace('/')
 }
 
-async function share() {
+function share() {
   if (!detail.value) {
     return
   }
 
-  const shareData = {
-    title: detail.value.title,
-    text: `来自 ${detail.value.author} 的作品`,
-    url: window.location.href
-  }
-
-  try {
-    if (navigator.share) {
-      await navigator.share(shareData)
-      return
-    }
-
-    await navigator.clipboard.writeText(shareData.url)
-    message.success('详情链接已复制')
-  } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      return
-    }
-
-    message.error('分享失败，请稍后重试')
-  }
+  void shareItem(detail.value)
 }
 
 onKeyStroke('Escape', close)
