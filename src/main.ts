@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 
 import App from './App.vue'
-import materialLibrary from './libs'
 import { installPermissionGuard } from './permission'
 import router from './router'
 import { pinia, useUserStore } from './stores'
@@ -12,7 +11,6 @@ const app = createApp(App)
 
 app.use(pinia)
 app.use(router)
-app.use(materialLibrary)
 
 installPermissionGuard(router)
 
