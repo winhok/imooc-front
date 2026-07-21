@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 
-import { confirm } from '@/libs/confirm'
+import { useCommands } from '@/libs/command'
 import { useSearchStore } from '@/stores/search'
 
 defineOptions({ name: 'SearchHistory' })
@@ -11,6 +11,7 @@ const emit = defineEmits<{
 }>()
 
 const searchStore = useSearchStore()
+const { confirm } = useCommands()
 const { history } = storeToRefs(searchStore)
 
 async function clearAllHistory() {

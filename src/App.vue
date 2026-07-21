@@ -3,6 +3,7 @@ import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import { THEME_DARK } from '@/constants'
+import CommandHost from '@/libs/command/CommandHost.vue'
 import { useThemeStore } from '@/stores'
 
 const themeStore = useThemeStore()
@@ -19,4 +20,5 @@ watch(
 
 <template>
   <MTransitionRouterView />
+  <CommandHost />
 </template>

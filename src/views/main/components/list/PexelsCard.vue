@@ -4,7 +4,7 @@ import { useFullscreen } from '@vueuse/core'
 import { RouterLink } from 'vue-router'
 
 import { usePexelsShare } from '@/composables/usePexelsShare'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import type { PexelsItem } from '@/types/pexels'
 import { colorFromString } from '@/utils/color'
 
@@ -26,6 +26,7 @@ const emit = defineEmits<{
 
 const placeholderColor = computed(() => colorFromString(props.item.id))
 const preview = useTemplateRef<HTMLElement>('preview')
+const { message } = useCommands()
 const { isFullscreen, isSupported, enter, exit } = useFullscreen(preview, { autoExit: true })
 const { isDownloading, downloadImage } = useImageDownload()
 const { shareItemToWeibo } = usePexelsShare()

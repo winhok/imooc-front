@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, shallowRef, useId, useTemplateRef } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef } from 'vue'
 import { useEventListener, useScrollLock } from '@vueuse/core'
 
 defineOptions({ name: 'MConfirmDialog' })
@@ -27,8 +27,10 @@ const isVisible = shallowRef(false)
 const panel = useTemplateRef<HTMLElement>('panel')
 const confirmButton = useTemplateRef<HTMLButtonElement>('confirmButton')
 const isBodyLocked = useScrollLock(document.body)
+const previouslyFocusedElement = shallowRef<HTMLElement>()
 const titleId = `confirm-title-${useId()}`
 const contentId = `confirm-content-${useId()}`
+let hasReleasedFocus = false
 
 function close() {
   isVisible.value = false
@@ -72,16 +74,30 @@ useEventListener(document, 'keydown', (event) => {
 })
 
 onMounted(async () => {
+  previouslyFocusedElement.value =
+    document.activeElement instanceof HTMLElement ? document.activeElement : undefined
   isBodyLocked.value = true
   isVisible.value = true
   await nextTick()
   confirmButton.value?.focus()
 })
 
-function onAfterLeave() {
+function releaseResources() {
   isBodyLocked.value = false
+
+  if (!hasReleasedFocus) {
+    hasReleasedFocus = true
+    previouslyFocusedElement.value?.focus()
+    previouslyFocusedElement.value = undefined
+  }
+}
+
+function onAfterLeave() {
+  releaseResources()
   emit('closed')
 }
+
+onBeforeUnmount(releaseResources)
 </script>
 
 <template>

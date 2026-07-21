@@ -7,7 +7,7 @@ import {
   getWeChatUserInfo,
   type OAuthIdentity
 } from '@/api/auth'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import type { useUserStore } from '@/stores'
 
 import {
@@ -97,6 +97,7 @@ function closeCallbackWindow() {
 }
 
 export function useOAuthLogin(options: UseOAuthLoginOptions) {
+  const { message } = useCommands()
   const activeProvider = shallowRef<OAuthButtonProvider>()
   const errorMessage = shallowRef('')
   const controller = new AbortController()

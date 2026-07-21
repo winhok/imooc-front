@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 
 import type { LoginCredentials } from '@/api/auth'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { useUserStore } from '@/stores'
 
 import AuthField from '../components/AuthField.vue'
@@ -23,6 +23,7 @@ interface LoginFormValues {
 
 const route = useRoute()
 const router = useRouter()
+const { message } = useCommands()
 const userStore = useUserStore()
 const { profile } = storeToRefs(userStore)
 const isCaptchaVisible = shallowRef(false)

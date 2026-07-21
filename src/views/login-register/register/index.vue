@@ -6,7 +6,7 @@ import { useForm } from 'vee-validate'
 import type { GenericValidateFunction } from 'vee-validate'
 
 import type { LoginCredentials, OAuthIdentity } from '@/api/auth'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { useUserStore } from '@/stores'
 
 import AuthField from '../components/AuthField.vue'
@@ -25,6 +25,7 @@ interface RegisterFormValues {
 
 const route = useRoute()
 const router = useRouter()
+const { message } = useCommands()
 const userStore = useUserStore()
 const { pendingOAuthRegistration } = storeToRefs(userStore)
 const isCaptchaVisible = shallowRef(false)

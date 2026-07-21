@@ -4,8 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
 import type { EditableUserProfile } from '@/api/profile'
-import { confirm } from '@/libs/confirm'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { useUserStore } from '@/stores'
 import { isMobileTerminal } from '@/utils/flexible'
 
@@ -16,6 +15,7 @@ import { useAvatarUpload } from './useAvatarUpload'
 defineOptions({ name: 'ProfileView' })
 
 const router = useRouter()
+const { confirm, message } = useCommands()
 const userStore = useUserStore()
 const { profile, isProfileLoading } = storeToRefs(userStore)
 const { uploadAvatar } = useAvatarUpload()

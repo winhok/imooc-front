@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue'
 import Cropper from 'cropperjs'
 
 import { AVATAR_OUTPUT_SIZE } from '@/constants'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 
 defineOptions({ name: 'AvatarCropper' })
 
@@ -18,6 +18,7 @@ const emit = defineEmits<{
 }>()
 
 const image = useTemplateRef<HTMLImageElement>('image')
+const { message } = useCommands()
 const isRendering = shallowRef(false)
 let cropper: Cropper | undefined
 

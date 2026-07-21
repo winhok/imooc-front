@@ -2,7 +2,7 @@ import { useClipboard, useShare } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 
 import { PUBLIC_APP_URL } from '@/constants'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import type { PexelsItem } from '@/types/pexels'
 import { createWeiboShareUrl, openShareWindow } from '@/utils/share'
 import type { ShareContent } from '@/utils/share'
@@ -11,6 +11,7 @@ type ShareablePexelsItem = Readonly<Pick<PexelsItem, 'id' | 'title' | 'photo' | 
 
 export function usePexelsShare() {
   const router = useRouter()
+  const { message } = useCommands()
   const { isSupported: isNativeShareSupported, share } = useShare()
   const { copy, isSupported: isClipboardSupported } = useClipboard({ legacy: true })
 

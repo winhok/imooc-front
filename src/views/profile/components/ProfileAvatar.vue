@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 
 import { AVATAR_MAX_FILE_SIZE } from '@/constants'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { isMobileTerminal } from '@/utils/flexible'
 
 import AvatarCropper from './AvatarCropper.vue'
@@ -20,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const input = useTemplateRef<HTMLInputElement>('input')
+const { message } = useCommands()
 const isEditorOpen = shallowRef(false)
 const objectUrl = shallowRef('')
 const initial = computed(() => props.displayName.trim().charAt(0).toUpperCase() || 'M')

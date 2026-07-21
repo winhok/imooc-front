@@ -3,8 +3,7 @@ import { computed, shallowRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
-import { confirm } from '@/libs/confirm'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { useUserStore } from '@/stores'
 
 defineOptions({ name: 'HeaderMy' })
@@ -18,6 +17,7 @@ const menuItems = [
 type MenuItem = (typeof menuItems)[number]
 
 const router = useRouter()
+const { confirm, message } = useCommands()
 const userStore = useUserStore()
 const { isAuthenticated, profile } = storeToRefs(userStore)
 const isMenuOpen = shallowRef(false)

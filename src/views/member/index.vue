@@ -3,7 +3,7 @@ import { onMounted, shallowRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { isMobileTerminal } from '@/utils/flexible'
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import { startAlipayPayment } from '@/utils/pay'
 import type { VipPayPlan } from '@/api/pay'
 
@@ -14,6 +14,7 @@ import { useVipPlans } from './useVipPlans'
 defineOptions({ name: 'MemberView' })
 
 const router = useRouter()
+const { message } = useCommands()
 const { plans, selectedPlan, isLoading, errorMessage, loadPlans, selectPlan } = useVipPlans()
 const isPaying = shallowRef(false)
 

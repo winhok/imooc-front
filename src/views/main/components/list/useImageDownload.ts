@@ -1,7 +1,7 @@
 import { onScopeDispose, readonly, shallowRef } from 'vue'
 import { saveAs } from 'file-saver'
 
-import { message } from '@/libs/message'
+import { useCommands } from '@/libs/command'
 import type { PexelsItem } from '@/types/pexels'
 
 function sanitizeFilename(value: string) {
@@ -22,6 +22,7 @@ function getFilename(item: PexelsItem) {
 }
 
 export function useImageDownload() {
+  const { message } = useCommands()
   const isDownloading = shallowRef(false)
   let activeController: AbortController | undefined
 

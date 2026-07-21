@@ -1,12 +1,15 @@
 import type { Router } from 'vue-router'
 
-import { message } from '@/libs/message'
+import type { CommandService } from '@/libs/command'
 import { pinia, useUserStore } from '@/stores'
 import { setUnauthorizedHandler } from '@/utils/request'
 
 const GUEST_ROUTE_NAMES = new Set(['login', 'register'])
 
-export function installPermissionGuard(router: Router) {
+export function installPermissionGuard(
+  router: Router,
+  { message }: Pick<CommandService, 'message'>
+) {
   const userStore = useUserStore(pinia)
 
   router.beforeEach((to) => {
