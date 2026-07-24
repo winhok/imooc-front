@@ -33,7 +33,8 @@ export const CATEGORY_FALLBACK_DATA = [
   { id: 'home', name: '家居/家装' }
 ] satisfies readonly Category[]
 
-export const CATEGORY_STORAGE_KEY = 'imooc-front:categories'
+export const CATEGORY_STORAGE_KEY = 'imooc-front:categories:v1'
+export const CATEGORY_LEGACY_STORAGE_KEY = 'imooc-front:categories'
 
 export const SEARCH_HISTORY_STORAGE_KEY = 'imooc-front:search-history'
 export const SEARCH_HISTORY_LIMIT = 10

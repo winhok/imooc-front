@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 
 import ConfirmDialog from '@/libs/confirm/index.vue'
 import MessageHost from '@/libs/message/index.vue'
@@ -10,6 +10,14 @@ defineOptions({ name: 'CommandHost' })
 
 const controller = useCommandHost()
 const currentConfirm = computed(() => controller.state.confirmQueue[0])
+
+onMounted(() => {
+  controller.setMessageHostReady(true)
+})
+
+onBeforeUnmount(() => {
+  controller.setMessageHostReady(false)
+})
 
 function settleConfirm(value: boolean) {
   const request = currentConfirm.value

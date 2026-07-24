@@ -10,10 +10,12 @@ export function usePexelsDetail(id: MaybeRefOrGetter<string>) {
   const errorMessage = shallowRef('')
   const reloadToken = shallowRef(0)
   const resolvedId = computed(() => toValue(id))
+  let requestGeneration = 0
 
   watch(
     [resolvedId, reloadToken],
     async ([currentId], _previous, onCleanup) => {
+      const generation = ++requestGeneration
       const controller = new AbortController()
       onCleanup(() => controller.abort())
 
@@ -22,13 +24,17 @@ export function usePexelsDetail(id: MaybeRefOrGetter<string>) {
       errorMessage.value = ''
 
       try {
-        detail.value = await getPexelsById(currentId, controller.signal)
+        const nextDetail = await getPexelsById(currentId, controller.signal)
+
+        if (!controller.signal.aborted && generation === requestGeneration) {
+          detail.value = nextDetail
+        }
       } catch (error) {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && generation === requestGeneration) {
           errorMessage.value = error instanceof Error ? error.message : '作品详情加载失败'
         }
       } finally {
-        if (!controller.signal.aborted) {
+        if (!controller.signal.aborted && generation === requestGeneration) {
           isLoading.value = false
         }
       }

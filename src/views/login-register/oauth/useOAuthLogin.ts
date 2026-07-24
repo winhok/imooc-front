@@ -25,8 +25,12 @@ interface UseOAuthLoginOptions {
   getReturnTo: () => string
 }
 
-const QQ_LOGIN_URL =
-  'https://graph.qq.com/oauth2.0/authorize?client_id=101998494&response_type=token&scope=all&redirect_uri=https%3A%2F%2Fimooc-front.lgdsunday.club%2Flogin'
+const QQ_SDK_URL = 'https://connect.qq.com/qc_jssdk.js'
+const QQ_APP_ID = '101998494'
+const QQ_REDIRECT_URI = 'https://imooc-front.lgdsunday.club/login'
+const QQ_POPUP_PREFIX = 'oauth2Login_10609'
+const WECHAT_POPUP_PREFIX = 'weChatLogin'
+let qqSdkPromise: Promise<void> | undefined
 
 const providerNames: Record<OAuthButtonProvider, string> = {
   qq: 'QQ',
@@ -35,6 +39,77 @@ const providerNames: Record<OAuthButtonProvider, string> = {
 
 function getQQAccessToken() {
   return new URLSearchParams(window.location.hash.slice(1)).get('access_token') || ''
+}
+
+function getQQCallbackState() {
+  return new URLSearchParams(window.location.hash.slice(1)).get('state') || ''
+}
+
+function createAttemptId() {
+  return typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now()}-${crypto.getRandomValues(new Uint32Array(2)).join('-')}`
+}
+
+function getAttemptId(prefix: string) {
+  return window.name.startsWith(`${prefix}:`) ? window.name.slice(prefix.length + 1) : ''
+}
+
+function buildQQLoginUrl(attemptId: string) {
+  const params = new URLSearchParams({
+    client_id: QQ_APP_ID,
+    response_type: 'token',
+    scope: 'all',
+    redirect_uri: QQ_REDIRECT_URI,
+    state: attemptId
+  })
+
+  return `https://graph.qq.com/oauth2.0/authorize?${params.toString()}`
+}
+
+function loadQQSdk() {
+  if (typeof QC !== 'undefined') {
+    return Promise.resolve()
+  }
+
+  if (qqSdkPromise) {
+    return qqSdkPromise
+  }
+
+  qqSdkPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${QQ_SDK_URL}"]`)
+    const script = existing ?? document.createElement('script')
+
+    function cleanup() {
+      script.removeEventListener('load', onLoad)
+      script.removeEventListener('error', onError)
+    }
+
+    function onLoad() {
+      cleanup()
+      resolve()
+    }
+
+    function onError() {
+      cleanup()
+      qqSdkPromise = undefined
+      reject(new Error('QQ 登录服务加载失败，请稍后重试'))
+    }
+
+    script.addEventListener('load', onLoad, { once: true })
+    script.addEventListener('error', onError, { once: true })
+
+    if (!existing) {
+      script.src = QQ_SDK_URL
+      script.async = true
+      script.charset = 'utf-8'
+      script.dataset.appid = QQ_APP_ID
+      script.dataset.redirecturi = QQ_REDIRECT_URI
+      document.head.appendChild(script)
+    }
+  })
+
+  return qqSdkPromise
 }
 
 function buildWeChatLoginUrl(data: Awaited<ReturnType<typeof getWeChatLoginData>>) {
@@ -51,6 +126,7 @@ function buildWeChatLoginUrl(data: Awaited<ReturnType<typeof getWeChatLoginData>
 
 function waitForPopup(
   popup: Window,
+  attemptId: string,
   accepts: (message: OAuthPopupMessage) => boolean,
   signal: AbortSignal
 ) {
@@ -65,7 +141,7 @@ function waitForPopup(
       10 * 60 * 1000
     )
 
-    const stopListening = listenForOAuthPopupMessage((message) => {
+    const stopListening = listenForOAuthPopupMessage(attemptId, popup, (message) => {
       if (accepts(message)) {
         finish(() => resolve(message))
       }
@@ -118,18 +194,27 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
     await options.router.replace(options.getReturnTo())
   }
 
-  function initializeQQCallback() {
+  async function initializeQQCallback() {
+    const accessToken = getQQAccessToken()
+
+    if (!accessToken) {
+      return
+    }
+
+    const callbackState = getQQCallbackState()
+    const attemptId = getAttemptId(QQ_POPUP_PREFIX)
+    await loadQQSdk()
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+
+    if (callbackState && attemptId && callbackState !== attemptId) {
+      throw new Error('QQ 登录状态校验失败，请重试')
+    }
+
     if (typeof QC === 'undefined') {
       return
     }
 
     QC.Login({ btnId: 'qqLoginButton' }, (data) => {
-      const accessToken = getQQAccessToken()
-
-      if (!accessToken) {
-        return
-      }
-
       QC.Login.signOut()
 
       const identity = {
@@ -141,15 +226,19 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
         }
       } satisfies Extract<OAuthIdentity, { provider: 'QQ' }>
 
-      const wasSent = sendOAuthPopupMessage({
-        type: OAUTH_POPUP_MESSAGE,
-        provider: 'QQ',
-        identity
-      })
+      if (attemptId) {
+        const wasSent = sendOAuthPopupMessage({
+          type: OAUTH_POPUP_MESSAGE,
+          attemptId,
+          messageId: createAttemptId(),
+          provider: 'QQ',
+          identity
+        })
 
-      if (wasSent && window.name === 'oauth2Login_10609') {
-        closeCallbackWindow()
-        return
+        if (wasSent) {
+          closeCallbackWindow()
+          return
+        }
       }
 
       void finishOAuthLogin(identity)
@@ -165,26 +254,29 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
       return
     }
 
-    const wasSent = sendOAuthPopupMessage({
-      type: OAUTH_POPUP_MESSAGE,
-      provider: 'WX',
-      code,
-      state
-    })
+    const attemptId = getAttemptId(WECHAT_POPUP_PREFIX)
+    window.history.replaceState(null, '', window.location.pathname)
 
-    if (wasSent && window.name === 'weChatLogin') {
-      closeCallbackWindow()
+    if (attemptId) {
+      const wasSent = sendOAuthPopupMessage({
+        type: OAUTH_POPUP_MESSAGE,
+        attemptId,
+        messageId: createAttemptId(),
+        provider: 'WX',
+        code,
+        state
+      })
+
+      if (wasSent) {
+        closeCallbackWindow()
+      }
     }
   }
 
-  async function startQQLogin() {
-    if (typeof QC === 'undefined') {
-      throw new Error('QQ 登录服务加载失败，请刷新页面后重试')
-    }
-
+  async function startQQLogin(attemptId: string) {
     const popup = window.open(
-      QQ_LOGIN_URL,
-      'oauth2Login_10609',
+      buildQQLoginUrl(attemptId),
+      `${QQ_POPUP_PREFIX}:${attemptId}`,
       'height=525,width=585,toolbar=no,menubar=no,scrollbars=no,status=no,location=yes,resizable=yes'
     )
 
@@ -192,21 +284,27 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
       throw new Error('浏览器阻止了登录窗口，请允许弹窗后重试')
     }
 
-    const callback = await waitForPopup(
-      popup,
-      (result) => result.provider === 'QQ',
-      controller.signal
-    )
+    try {
+      const callback = await waitForPopup(
+        popup,
+        attemptId,
+        (result) => result.provider === 'QQ',
+        controller.signal
+      )
 
-    if (callback.provider === 'QQ') {
-      await finishOAuthLogin(callback.identity)
+      if (callback.provider === 'QQ') {
+        await finishOAuthLogin(callback.identity)
+      }
+    } catch (error) {
+      popup.close()
+      throw error
     }
   }
 
-  async function startWeChatLogin() {
+  async function startWeChatLogin(attemptId: string) {
     const popup = window.open(
       'about:blank',
-      'weChatLogin',
+      `${WECHAT_POPUP_PREFIX}:${attemptId}`,
       'height=525,width=585,toolbar=no,menubar=no,scrollbars=no,status=no,location=yes,resizable=yes'
     )
 
@@ -218,6 +316,7 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
       const loginData = await getWeChatLoginData()
       const callbackPromise = waitForPopup(
         popup,
+        attemptId,
         (result) => result.provider === 'WX' && result.state === loginData.state,
         controller.signal
       )
@@ -258,12 +357,13 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
 
     activeProvider.value = provider
     errorMessage.value = ''
+    const attemptId = createAttemptId()
 
     try {
       if (provider === 'qq') {
-        await startQQLogin()
+        await startQQLogin(attemptId)
       } else {
-        await startWeChatLogin()
+        await startWeChatLogin(attemptId)
       }
     } catch (error) {
       errorMessage.value =
@@ -274,8 +374,17 @@ export function useOAuthLogin(options: UseOAuthLoginOptions) {
   }
 
   onMounted(() => {
-    initializeQQCallback()
     initializeWeChatCallback()
+    void initializeQQCallback().catch((error) => {
+      errorMessage.value = error instanceof Error ? error.message : 'QQ登录失败'
+    })
+
+    if (!getQQAccessToken()) {
+      void loadQQSdk().catch(() => {
+        // The provider button remains available; the next callback page load
+        // retries the SDK without blocking the rest of the login form.
+      })
+    }
   })
 
   onScopeDispose(() => controller.abort(new Error('登录页面已离开')))

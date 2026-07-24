@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, shallowRef, useId, useTemplateRef } from 'vue'
-import { useEventListener, useScrollLock } from '@vueuse/core'
+import { useEventListener } from '@vueuse/core'
 
+import { useModalLayer } from '@/composables/useModalLayer'
 defineOptions({ name: 'MConfirmDialog' })
 
 interface Props {
@@ -26,11 +27,12 @@ const emit = defineEmits<{
 const isVisible = shallowRef(false)
 const panel = useTemplateRef<HTMLElement>('panel')
 const confirmButton = useTemplateRef<HTMLButtonElement>('confirmButton')
-const isBodyLocked = useScrollLock(document.body)
 const previouslyFocusedElement = shallowRef<HTMLElement>()
 const titleId = `confirm-title-${useId()}`
 const contentId = `confirm-content-${useId()}`
 let hasReleasedFocus = false
+const isLayerActive = shallowRef(false)
+const { isTopLayer } = useModalLayer(isLayerActive)
 
 function close() {
   isVisible.value = false
@@ -47,7 +49,11 @@ function confirm() {
 }
 
 useEventListener(document, 'keydown', (event) => {
-  if (event.key === 'Escape' && isVisible.value) {
+  if (!isVisible.value || !isTopLayer.value) {
+    return
+  }
+
+  if (event.key === 'Escape') {
     cancel()
     return
   }
@@ -76,14 +82,14 @@ useEventListener(document, 'keydown', (event) => {
 onMounted(async () => {
   previouslyFocusedElement.value =
     document.activeElement instanceof HTMLElement ? document.activeElement : undefined
-  isBodyLocked.value = true
+  isLayerActive.value = true
   isVisible.value = true
   await nextTick()
   confirmButton.value?.focus()
 })
 
 function releaseResources() {
-  isBodyLocked.value = false
+  isLayerActive.value = false
 
   if (!hasReleasedFocus) {
     hasReleasedFocus = true

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VNode } from 'vue'
 
-defineOptions({ name: 'MTriggerMenu' })
+defineOptions({ name: 'MobileQuickNav' })
 
 defineSlots<{
   default(): VNode[]

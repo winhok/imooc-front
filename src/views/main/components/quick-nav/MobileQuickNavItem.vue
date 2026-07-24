@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
 
-defineOptions({ name: 'MTriggerMenuItem' })
+defineOptions({ name: 'MobileQuickNavItem' })
 
 interface Props {
   icon: string
@@ -30,15 +30,30 @@ const itemClass = computed(() => [
     : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100',
   props.disabled ? 'pointer-events-none opacity-45' : ''
 ])
+
+function navigateLink(
+  event: MouseEvent,
+  navigate: (event?: MouseEvent) => void | Promise<unknown>
+) {
+  if (props.disabled) {
+    event.preventDefault()
+    event.stopPropagation()
+    return
+  }
+
+  void navigate(event)
+}
 </script>
 
 <template>
   <RouterLink v-if="to" :to="to" custom v-slot="{ href, navigate }">
     <a
-      :href="href"
+      :href="disabled ? undefined : href"
       :class="itemClass"
       :aria-current="active ? 'page' : undefined"
-      @click="navigate"
+      :aria-disabled="disabled || undefined"
+      :tabindex="disabled ? -1 : undefined"
+      @click="navigateLink($event, navigate)"
     >
       <MSvgIcon :name="icon" :size="18" />
       <span>{{ label }}</span>

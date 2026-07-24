@@ -165,7 +165,7 @@ onBeforeUnmount(releaseObjectUrl)
     />
   </MDialog>
 
-  <MPopup
+  <MBottomSheet
     v-else
     v-model="isEditorOpen"
     class="max-h-dvh overflow-auto p-[16px]"
@@ -191,5 +191,5 @@ onBeforeUnmount(releaseObjectUrl)
       @cancel="closeEditor"
       @confirm="onCropped"
     />
-  </MPopup>
+  </MBottomSheet>
 </template>

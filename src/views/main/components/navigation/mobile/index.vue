@@ -121,12 +121,16 @@ useResizeObserver(scroller, updateSlider)
     </button>
   </div>
 
-  <MPopup id="category-menu-popup" v-model="isPopupOpen" aria-labelledby="category-menu-title">
+  <MBottomSheet
+    id="category-menu-popup"
+    v-model="isPopupOpen"
+    aria-labelledby="category-menu-title"
+  >
     <CategoryMenu
       :categories="categories"
       :selected-id="selectedCategoryId"
       @select="selectCategory"
       @close="isPopupOpen = false"
     />
-  </MPopup>
+  </MBottomSheet>
 </template>

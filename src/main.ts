@@ -8,6 +8,33 @@ import { pinia, useUserStore } from './stores'
 import './styles/tailwind.css'
 import './styles/index.scss'
 
+const PRELOAD_RECOVERY_KEY = 'imooc-front:preload-recovery'
+const PRELOAD_RECOVERY_WINDOW = 10_000
+
+window.addEventListener('vite:preloadError', (event) => {
+  let lastRecovery = 0
+
+  try {
+    lastRecovery = Number(sessionStorage.getItem(PRELOAD_RECOVERY_KEY)) || 0
+  } catch {
+    // Storage can be unavailable in hardened browsing modes.
+  }
+
+  if (Date.now() - lastRecovery < PRELOAD_RECOVERY_WINDOW) {
+    return
+  }
+
+  event.preventDefault()
+
+  try {
+    sessionStorage.setItem(PRELOAD_RECOVERY_KEY, String(Date.now()))
+  } catch {
+    // Reload recovery still works without the loop guard in this tab.
+  }
+
+  window.location.reload()
+})
+
 const app = createApp(App)
 const commandController = createCommandController()
 

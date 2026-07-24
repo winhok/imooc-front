@@ -8,6 +8,8 @@ import { isMobileTerminal } from '@/utils/flexible'
 
 import NavigationBar from './components/navigation/index.vue'
 import PexelsList from './components/list/index.vue'
+import MobileQuickNav from './components/quick-nav/MobileQuickNav.vue'
+import MobileQuickNavItem from './components/quick-nav/MobileQuickNavItem.vue'
 
 defineOptions({ name: 'MainView' })
 
@@ -35,19 +37,19 @@ const accountLabel = computed(() => (isAuthenticated.value ? '我的' : '登录'
         <PexelsList />
       </div>
 
-      <MTriggerMenu
+      <MobileQuickNav
         v-if="isMobileTerminal"
         class="fixed right-1/2 bottom-[max(60px,env(safe-area-inset-bottom))] z-40 w-[220px] translate-x-1/2"
       >
-        <MTriggerMenuItem icon="home" label="首页" to="/" active />
-        <MTriggerMenuItem
+        <MobileQuickNavItem icon="home" label="首页" to="/" active />
+        <MobileQuickNavItem
           v-if="isAuthenticated"
           icon="crown"
           label="VIP"
           :to="{ name: 'member' }"
         />
-        <MTriggerMenuItem icon="profile" :label="accountLabel" :to="accountDestination" />
-      </MTriggerMenu>
+        <MobileQuickNavItem icon="profile" :label="accountLabel" :to="accountDestination" />
+      </MobileQuickNav>
     </div>
 
     <Teleport to="body">

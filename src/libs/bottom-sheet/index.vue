@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, shallowRef, useId, useTemplateRef, watch } from 'vue'
+import { nextTick, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue'
 import type { VNode } from 'vue'
 import { useEventListener } from '@vueuse/core'
 
 import { useModalLayer } from '@/composables/useModalLayer'
-defineOptions({ name: 'MDialog' })
+
+defineOptions({
+  name: 'MBottomSheet',
+  inheritAttrs: false
+})
 
 const props = withDefaults(
   defineProps<{
-    title?: string
     closeOnBackdrop?: boolean
     closeOnEscape?: boolean
   }>(),
   {
-    title: '',
     closeOnBackdrop: true,
     closeOnEscape: true
   }
@@ -25,7 +27,6 @@ defineSlots<{
 
 const isOpen = defineModel<boolean>({ required: true })
 const panel = useTemplateRef<HTMLElement>('panel')
-const titleId = `dialog-title-${useId()}`
 const previouslyFocused = shallowRef<HTMLElement>()
 const { isTopLayer } = useModalLayer(isOpen)
 
@@ -39,12 +40,12 @@ function onBackdropClick() {
   }
 }
 
-function onDocumentKeydown(event: KeyboardEvent) {
+function onKeydown(event: KeyboardEvent) {
   if (!isOpen.value || !isTopLayer.value) {
     return
   }
 
-  if (event.key === 'Escape' && props.closeOnEscape) {
+  if (props.closeOnEscape && event.key === 'Escape') {
     close()
     return
   }
@@ -89,44 +90,31 @@ watch(
   { immediate: true }
 )
 
-useEventListener(document, 'keydown', onDocumentKeydown)
-
+useEventListener(document, 'keydown', onKeydown)
 onBeforeUnmount(() => previouslyFocused.value?.focus())
 </script>
 
 <template>
   <Teleport to="body">
-    <Transition name="dialog-fade">
-      <button
+    <Transition name="bottom-sheet-fade">
+      <div
         v-if="isOpen"
-        type="button"
-        class="fixed inset-0 z-40 size-full cursor-default bg-zinc-950/72 backdrop-blur-[2px]"
-        aria-label="关闭对话框"
+        class="fixed inset-0 z-40 bg-zinc-950/72 backdrop-blur-[2px]"
+        aria-hidden="true"
         @click="onBackdropClick"
       />
     </Transition>
 
-    <Transition name="dialog-panel">
+    <Transition name="bottom-sheet-slide">
       <section
         v-if="isOpen"
         ref="panel"
-        class="fixed top-1/2 left-1/2 z-50 max-h-[88dvh] w-[min(92vw,760px)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-[18px] border border-zinc-200 bg-white p-[20px] text-zinc-950 shadow-2xl outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+        v-bind="$attrs"
+        class="fixed inset-x-0 bottom-0 z-50 w-full rounded-t-[20px] bg-white shadow-2xl transition-colors dark:bg-zinc-900"
         role="dialog"
         aria-modal="true"
-        :aria-labelledby="title ? titleId : undefined"
         tabindex="-1"
       >
-        <header v-if="title" class="mb-[16px] flex items-center justify-between gap-[16px]">
-          <h2 :id="titleId" class="text-base font-semibold">{{ title }}</h2>
-          <button
-            type="button"
-            class="grid size-[34px] place-items-center rounded-[9px] text-zinc-500 transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:hover:bg-zinc-800"
-            aria-label="关闭对话框"
-            @click="close"
-          >
-            <MSvgIcon name="close" :size="16" />
-          </button>
-        </header>
         <slot />
       </section>
     </Transition>
@@ -134,32 +122,31 @@ onBeforeUnmount(() => previouslyFocused.value?.focus())
 </template>
 
 <style scoped>
-.dialog-fade-enter-active,
-.dialog-fade-leave-active,
-.dialog-panel-enter-active,
-.dialog-panel-leave-active {
+.bottom-sheet-fade-enter-active,
+.bottom-sheet-fade-leave-active,
+.bottom-sheet-slide-enter-active,
+.bottom-sheet-slide-leave-active {
   transition:
-    opacity 180ms ease,
-    transform 180ms ease;
+    transform 220ms ease,
+    opacity 220ms ease;
 }
 
-.dialog-fade-enter-from,
-.dialog-fade-leave-to,
-.dialog-panel-enter-from,
-.dialog-panel-leave-to {
+.bottom-sheet-fade-enter-from,
+.bottom-sheet-fade-leave-to {
   opacity: 0;
 }
 
-.dialog-panel-enter-from,
-.dialog-panel-leave-to {
-  transform: translate(-50%, calc(-50% + 16px)) scale(0.98);
+.bottom-sheet-slide-enter-from,
+.bottom-sheet-slide-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dialog-fade-enter-active,
-  .dialog-fade-leave-active,
-  .dialog-panel-enter-active,
-  .dialog-panel-leave-active {
+  .bottom-sheet-fade-enter-active,
+  .bottom-sheet-fade-leave-active,
+  .bottom-sheet-slide-enter-active,
+  .bottom-sheet-slide-leave-active {
     transition-duration: 1ms;
   }
 }

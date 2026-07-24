@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 
 import type { PexelsItem } from '@/types/pexels'
 import { isMobileTerminal } from '@/utils/flexible'
-import { setPinsTransitionSource } from '@/views/pins/usePinsTransition'
+import { cancelPinsTransitionSource, setPinsTransitionSource } from '@/views/pins/usePinsTransition'
 import type { PinsTransitionOrigin } from '@/views/pins/usePinsTransition'
 
 import PexelsCard from './PexelsCard.vue'
@@ -42,9 +42,18 @@ function getItemKey(item: PexelsItem) {
   return item.id
 }
 
-function openDetails(payload: { item: PexelsItem; origin: PinsTransitionOrigin }) {
-  setPinsTransitionSource(payload.item.id, payload.origin)
-  void router.push({ name: 'pins', params: { id: payload.item.id } })
+async function openDetails(payload: { item: PexelsItem; origin: PinsTransitionOrigin }) {
+  const attemptId = setPinsTransitionSource(payload.item.id, payload.origin)
+
+  try {
+    const failure = await router.push({ name: 'pins', params: { id: payload.item.id } })
+
+    if (failure) {
+      cancelPinsTransitionSource(attemptId)
+    }
+  } catch {
+    cancelPinsTransitionSource(attemptId)
+  }
 }
 </script>
 

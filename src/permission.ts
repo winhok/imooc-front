@@ -1,6 +1,7 @@
 import type { Router } from 'vue-router'
 
 import type { CommandService } from '@/libs/command'
+import { resetRouteTaskStack } from '@/router/route-task-stack'
 import { pinia, useUserStore } from '@/stores'
 import { setUnauthorizedHandler } from '@/utils/request'
 
@@ -11,6 +12,7 @@ export function installPermissionGuard(
   { message }: Pick<CommandService, 'message'>
 ) {
   const userStore = useUserStore(pinia)
+  let isHandlingUnauthorized = false
 
   router.beforeEach((to) => {
     if (to.meta.guestOnly && userStore.isAuthenticated) {
@@ -26,20 +28,26 @@ export function installPermissionGuard(
     }
   })
 
-  setUnauthorizedHandler(() => {
-    if (!userStore.isAuthenticated) {
+  setUnauthorizedHandler(({ token }) => {
+    if (isHandlingUnauthorized || !token || !userStore.token || userStore.token !== token) {
       return
     }
 
+    isHandlingUnauthorized = true
     const redirect = GUEST_ROUTE_NAMES.has(String(router.currentRoute.value.name))
       ? undefined
       : router.currentRoute.value.fullPath
 
     userStore.clearSession()
+    resetRouteTaskStack()
     message.warning('登录状态已过期，请重新登录')
-    void router.replace({
-      name: 'login',
-      query: redirect ? { redirect } : undefined
-    })
+    void router
+      .replace({
+        name: 'login',
+        query: redirect ? { redirect } : undefined
+      })
+      .finally(() => {
+        isHandlingUnauthorized = false
+      })
   })
 }

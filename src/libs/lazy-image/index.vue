@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, shallowRef, useTemplateRef } from 'vue'
+import { computed, shallowRef, useTemplateRef, watch } from 'vue'
 import type { CSSProperties } from 'vue'
 
 defineOptions({ name: 'MLazyImage' })
@@ -26,6 +26,14 @@ const wrapper = useTemplateRef<HTMLElement>('wrapper')
 const shouldLoad = shallowRef(false)
 const isLoaded = shallowRef(false)
 const hasError = shallowRef(false)
+
+watch(
+  () => props.src,
+  () => {
+    isLoaded.value = false
+    hasError.value = false
+  }
+)
 
 const wrapperStyle = computed<CSSProperties>(() => ({
   width: '100%',

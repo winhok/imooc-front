@@ -9,21 +9,50 @@ export interface PinsTransitionOrigin {
 }
 
 interface PinsTransitionSource {
+  attemptId: number
   id: string
   origin: PinsTransitionOrigin
+  viewportWidth: number
+  viewportHeight: number
 }
 
 const source = shallowRef<PinsTransitionSource>()
+let nextAttemptId = 0
 
 export function setPinsTransitionSource(id: string, origin: PinsTransitionOrigin) {
-  source.value = { id, origin }
+  const attemptId = ++nextAttemptId
+  source.value = {
+    attemptId,
+    id,
+    origin,
+    viewportWidth: Math.max(window.innerWidth, 1),
+    viewportHeight: Math.max(window.innerHeight, 1)
+  }
+  return attemptId
+}
+
+export function cancelPinsTransitionSource(attemptId: number) {
+  if (source.value?.attemptId === attemptId) {
+    source.value = undefined
+  }
+}
+
+function consumePinsTransitionSource(id: string) {
+  if (source.value?.id !== id) {
+    return undefined
+  }
+
+  const consumed = source.value
+  source.value = undefined
+  return consumed
 }
 
 export function usePinsTransition(id: MaybeRefOrGetter<string>) {
-  const hasSource = computed(() => source.value?.id === toValue(id))
+  const transitionSource = consumePinsTransitionSource(toValue(id))
+  const hasSource = computed(() => Boolean(transitionSource))
 
   const transitionStyle = computed<CSSProperties>(() => {
-    if (!hasSource.value || !source.value) {
+    if (!transitionSource) {
       return {
         '--pins-origin-x': '4vw',
         '--pins-origin-y': '4dvh',
@@ -32,9 +61,7 @@ export function usePinsTransition(id: MaybeRefOrGetter<string>) {
       }
     }
 
-    const { origin } = source.value
-    const viewportWidth = Math.max(window.innerWidth, 1)
-    const viewportHeight = Math.max(window.innerHeight, 1)
+    const { origin, viewportWidth, viewportHeight } = transitionSource
 
     return {
       '--pins-origin-x': `${origin.left}px`,

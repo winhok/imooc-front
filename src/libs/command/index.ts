@@ -49,6 +49,7 @@ export interface CommandController {
   settleConfirm: (id: number, value: boolean) => void
   finishConfirm: (id: number) => void
   dismissMessage: (id: number) => void
+  setMessageHostReady: (isReady: boolean) => void
   dispose: () => void
 }
 
@@ -59,8 +60,10 @@ export function createCommandController(): CommandController {
   const confirmResolutions = new Map<number, ConfirmResolution>()
   const messages = shallowReactive<MessageItem[]>([])
   const dismissTimers = new Map<number, ReturnType<typeof setTimeout>>()
+  const messageDurations = new Map<number, number>()
   let nextConfirmId = 0
   let nextMessageId = 0
+  let isMessageHostReady = false
   let disposed = false
 
   const confirm = ((optionsOrContent: ConfirmOptions | string) => {
@@ -122,6 +125,40 @@ export function createCommandController(): CommandController {
     if (index !== -1) {
       messages.splice(index, 1)
     }
+
+    messageDurations.delete(id)
+  }
+
+  function scheduleMessageDismiss(id: number) {
+    const duration = messageDurations.get(id)
+
+    if (!isMessageHostReady || duration === undefined || duration <= 0) {
+      return
+    }
+
+    dismissTimers.set(
+      id,
+      setTimeout(() => dismissMessage(id), duration)
+    )
+  }
+
+  function setMessageHostReady(isReady: boolean) {
+    isMessageHostReady = isReady
+
+    if (!isReady) {
+      for (const timer of dismissTimers.values()) {
+        clearTimeout(timer)
+      }
+
+      dismissTimers.clear()
+      return
+    }
+
+    for (const item of messages) {
+      if (!dismissTimers.has(item.id)) {
+        scheduleMessageDismiss(item.id)
+      }
+    }
   }
 
   function showMessage(type: MessageType, content: string, duration = 3000) {
@@ -133,10 +170,8 @@ export function createCommandController(): CommandController {
     messages.push({ id, type, content })
 
     if (duration > 0) {
-      dismissTimers.set(
-        id,
-        setTimeout(() => dismissMessage(id), duration)
-      )
+      messageDurations.set(id, duration)
+      scheduleMessageDismiss(id)
     }
 
     return () => dismissMessage(id)
@@ -163,6 +198,7 @@ export function createCommandController(): CommandController {
     }
 
     dismissTimers.clear()
+    messageDurations.clear()
     messages.splice(0)
 
     for (const request of confirmQueue) {
@@ -187,6 +223,7 @@ export function createCommandController(): CommandController {
     settleConfirm,
     finishConfirm,
     dismissMessage,
+    setMessageHostReady,
     dispose
   }
 }

@@ -2,69 +2,106 @@ import type { OAuthIdentity } from '@/api/auth'
 
 export const OAUTH_POPUP_MESSAGE = 'imooc-front:oauth-popup'
 
-const OAUTH_POPUP_CHANNEL = 'imooc-front:oauth-popup-channel'
-const OAUTH_POPUP_STORAGE_KEY = 'imooc-front:oauth-popup-message'
+const OAUTH_POPUP_CHANNEL_PREFIX = 'imooc-front:oauth-popup-channel'
+const OAUTH_POPUP_STORAGE_PREFIX = 'imooc-front:oauth-popup-message'
 
 export type OAuthPopupMessage =
   | {
       type: typeof OAUTH_POPUP_MESSAGE
+      attemptId: string
+      messageId: string
       provider: 'QQ'
       identity: Extract<OAuthIdentity, { provider: 'QQ' }>
     }
   | {
       type: typeof OAUTH_POPUP_MESSAGE
+      attemptId: string
+      messageId: string
       provider: 'WX'
       code: string
       state: string
     }
 
 export function sendOAuthPopupMessage(message: OAuthPopupMessage) {
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage(message, window.location.origin)
+    return true
+  }
+
+  const channelName = `${OAUTH_POPUP_CHANNEL_PREFIX}:${message.attemptId}`
+  const storageKey = `${OAUTH_POPUP_STORAGE_PREFIX}:${message.attemptId}`
+
   if (typeof BroadcastChannel !== 'undefined') {
-    const channel = new BroadcastChannel(OAUTH_POPUP_CHANNEL)
+    const channel = new BroadcastChannel(channelName)
     channel.postMessage(message)
     channel.close()
     return true
   }
 
   try {
-    localStorage.setItem(OAUTH_POPUP_STORAGE_KEY, JSON.stringify(message))
-    localStorage.removeItem(OAUTH_POPUP_STORAGE_KEY)
+    localStorage.setItem(storageKey, JSON.stringify(message))
+    localStorage.removeItem(storageKey)
     return true
   } catch {
     return false
   }
 }
 
-export function listenForOAuthPopupMessage(listener: (message: OAuthPopupMessage) => void) {
-  if (typeof BroadcastChannel !== 'undefined') {
-    const channel = new BroadcastChannel(OAUTH_POPUP_CHANNEL)
-    channel.onmessage = (event: MessageEvent<unknown>) => {
-      if (isOAuthPopupMessage(event.data)) {
-        listener(event.data)
-      }
+export function listenForOAuthPopupMessage(
+  attemptId: string,
+  popup: Window,
+  listener: (message: OAuthPopupMessage) => void
+) {
+  const consumedMessageIds = new Set<string>()
+  const channelName = `${OAUTH_POPUP_CHANNEL_PREFIX}:${attemptId}`
+  const storageKey = `${OAUTH_POPUP_STORAGE_PREFIX}:${attemptId}`
+  let channel: BroadcastChannel | undefined
+
+  function consume(value: unknown) {
+    if (
+      !isOAuthPopupMessage(value) ||
+      value.attemptId !== attemptId ||
+      consumedMessageIds.has(value.messageId)
+    ) {
+      return
     }
 
-    return () => channel.close()
+    consumedMessageIds.add(value.messageId)
+    listener(value)
+  }
+
+  const onWindowMessage = (event: MessageEvent<unknown>) => {
+    if (event.origin === window.location.origin && event.source === popup) {
+      consume(event.data)
+    }
+  }
+  window.addEventListener('message', onWindowMessage)
+
+  if (typeof BroadcastChannel !== 'undefined') {
+    channel = new BroadcastChannel(channelName)
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      consume(event.data)
+    }
   }
 
   const onStorage = (event: StorageEvent) => {
-    if (event.key !== OAUTH_POPUP_STORAGE_KEY || !event.newValue) {
+    if (event.key !== storageKey || !event.newValue) {
       return
     }
 
     try {
-      const message: unknown = JSON.parse(event.newValue)
-
-      if (isOAuthPopupMessage(message)) {
-        listener(message)
-      }
+      consume(JSON.parse(event.newValue))
     } catch {
       return
     }
   }
 
   window.addEventListener('storage', onStorage)
-  return () => window.removeEventListener('storage', onStorage)
+  return () => {
+    window.removeEventListener('message', onWindowMessage)
+    window.removeEventListener('storage', onStorage)
+    channel?.close()
+  }
 }
 
 export function isOAuthPopupMessage(value: unknown): value is OAuthPopupMessage {
@@ -74,7 +111,13 @@ export function isOAuthPopupMessage(value: unknown): value is OAuthPopupMessage 
 
   const message = value as Partial<OAuthPopupMessage>
 
-  if (message.type !== OAUTH_POPUP_MESSAGE) {
+  if (
+    message.type !== OAUTH_POPUP_MESSAGE ||
+    typeof message.attemptId !== 'string' ||
+    !message.attemptId ||
+    typeof message.messageId !== 'string' ||
+    !message.messageId
+  ) {
     return false
   }
 

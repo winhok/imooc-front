@@ -8,9 +8,10 @@ import {
   useId,
   useTemplateRef
 } from 'vue'
-import { useEventListener, useResizeObserver, useScrollLock } from '@vueuse/core'
+import { useEventListener, useResizeObserver } from '@vueuse/core'
 
 import { verifyCaptcha } from '@/api/auth'
+import { useModalLayer } from '@/composables/useModalLayer'
 
 import CaptchaPuzzle from './CaptchaPuzzle.vue'
 import { createCaptchaChallenge } from './captcha-challenge'
@@ -42,7 +43,9 @@ const trackWidth = shallowRef(0)
 const isImageLoaded = shallowRef(false)
 const abortController = shallowRef<AbortController>()
 const resetTimer = shallowRef<number>()
-const isScrollLocked = useScrollLock(document.body)
+let verificationGeneration = 0
+const isLayerActive = shallowRef(true)
+const { isTopLayer } = useModalLayer(isLayerActive)
 const previouslyFocusedElement =
   document.activeElement instanceof HTMLElement ? document.activeElement : undefined
 
@@ -77,12 +80,15 @@ const statusText = computed(() => {
 })
 
 function reset() {
+  verificationGeneration += 1
+
   if (resetTimer.value) {
     window.clearTimeout(resetTimer.value)
     resetTimer.value = undefined
   }
 
   abortController.value?.abort()
+  abortController.value = undefined
   progress.value = 0
   challenge.value = createCaptchaChallenge(challenge.value.imageUrl)
   isImageLoaded.value = false
@@ -209,12 +215,22 @@ async function completeChallenge() {
   }
 
   const controller = new AbortController()
+  const generation = ++verificationGeneration
   abortController.value?.abort()
   abortController.value = controller
   status.value = 'verifying'
+  const behaviorSnapshot = [...behavior.value]
 
   try {
-    const passed = await verifyCaptcha({ behavior: behavior.value }, controller.signal)
+    const passed = await verifyCaptcha({ behavior: behaviorSnapshot }, controller.signal)
+
+    if (
+      controller.signal.aborted ||
+      abortController.value !== controller ||
+      generation !== verificationGeneration
+    ) {
+      return
+    }
 
     if (!passed) {
       throw new Error('服务端未通过本次行为验证')
@@ -222,7 +238,11 @@ async function completeChallenge() {
 
     emit('success')
   } catch (error) {
-    if (controller.signal.aborted) {
+    if (
+      controller.signal.aborted ||
+      abortController.value !== controller ||
+      generation !== verificationGeneration
+    ) {
       return
     }
 
@@ -242,6 +262,10 @@ function onImageError() {
 }
 
 function onDocumentKeydown(event: KeyboardEvent) {
+  if (!isTopLayer.value) {
+    return
+  }
+
   if (event.key === 'Escape') {
     emit('close')
     return
@@ -275,18 +299,19 @@ function onDocumentKeydown(event: KeyboardEvent) {
 }
 
 onMounted(async () => {
-  isScrollLocked.value = true
   await nextTick()
   dialog.value?.focus()
 })
 
 onBeforeUnmount(() => {
+  verificationGeneration += 1
+
   if (resetTimer.value) {
     window.clearTimeout(resetTimer.value)
   }
 
   abortController.value?.abort()
-  isScrollLocked.value = false
+  isLayerActive.value = false
   previouslyFocusedElement?.focus()
 })
 

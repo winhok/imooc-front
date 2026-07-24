@@ -63,7 +63,7 @@ function chooseAlipay() {
     </div>
   </section>
 
-  <MPopup v-model="isPaymentSheetOpen">
+  <MBottomSheet v-model="isPaymentSheetOpen">
     <div
       class="flex h-[80dvh] max-h-[80dvh] flex-col py-[20px] pb-[calc(24px+env(safe-area-inset-bottom))]"
     >
@@ -83,5 +83,5 @@ function chooseAlipay() {
       </div>
       <AlipayOption compact :loading="processing" @select="chooseAlipay" />
     </div>
-  </MPopup>
+  </MBottomSheet>
 </template>

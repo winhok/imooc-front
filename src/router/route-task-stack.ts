@@ -16,6 +16,7 @@ interface RouteTask {
 
 const direction = shallowRef<RouteTransitionDirection>('none')
 const tasks = shallowRef<RouteTask[]>([])
+let taskGeneration = 0
 
 export const routeTransitionDirection = readonly(direction)
 export const cachedRouteViewNames = computed(() => [
@@ -47,12 +48,14 @@ function findLastTaskIndex(key: string) {
 
 export function installRouteTaskStack(router: Router, history: RouterHistory) {
   let pendingHistoryDirection: RouteTransitionDirection | undefined
+  const navigationGenerations = new WeakMap<object, number>()
 
   history.listen((_to, _from, information) => {
     pendingHistoryDirection = information.direction === 'back' ? 'back' : 'push'
   })
 
   router.beforeEach((to, from) => {
+    navigationGenerations.set(to, taskGeneration)
     const changesRootView = getRootRouteKey(to) !== getRootRouteKey(from)
 
     if (from === START_LOCATION || !changesRootView) {
@@ -66,7 +69,7 @@ export function installRouteTaskStack(router: Router, history: RouterHistory) {
   })
 
   router.afterEach((to, from, failure) => {
-    if (failure) {
+    if (failure || navigationGenerations.get(to) !== taskGeneration) {
       return
     }
 
@@ -95,6 +98,12 @@ export function installRouteTaskStack(router: Router, history: RouterHistory) {
 
     tasks.value = [...tasks.value, task]
   })
+}
+
+export function resetRouteTaskStack() {
+  taskGeneration += 1
+  direction.value = 'none'
+  tasks.value = []
 }
 
 export function shouldResetScroll(

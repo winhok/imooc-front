@@ -29,10 +29,19 @@ export function usePexelsShare() {
 
   async function shareItem(item: ShareablePexelsItem) {
     const content = createShareContent(item)
+    const nativeShareData: ShareData = {
+      title: content.title,
+      text: content.text,
+      url: content.url
+    }
 
     try {
-      if (isNativeShareSupported.value) {
-        await share(content)
+      const canUseNativeShare =
+        isNativeShareSupported.value &&
+        (typeof navigator.canShare !== 'function' || navigator.canShare(nativeShareData))
+
+      if (canUseNativeShare) {
+        await share(nativeShareData)
         return
       }
 

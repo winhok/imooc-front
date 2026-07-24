@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    MBottomSheet: typeof import('./../libs/bottom-sheet/index.vue')['default']
     MButton: typeof import('./../libs/button/index.vue')['default']
     MCountDown: typeof import('./../libs/count-down/index.vue')['default']
     MDialog: typeof import('./../libs/dialog/index.vue')['default']
@@ -19,12 +20,9 @@ declare module 'vue' {
     MLazyImage: typeof import('./../libs/lazy-image/index.vue')['default']
     MNavbar: typeof import('./../libs/navbar/index.vue')['default']
     MPopover: typeof import('./../libs/popover/index.vue')['default']
-    MPopup: typeof import('./../libs/popup/index.vue')['default']
     MSearch: typeof import('./../libs/search/index.vue')['default']
     MSvgIcon: typeof import('./../libs/svg-icon/index.vue')['default']
     MTransitionRouterView: typeof import('./../libs/transition-router-view/index.vue')['default']
-    MTriggerMenu: typeof import('./../libs/trigger-menu/index.vue')['default']
-    MTriggerMenuItem: typeof import('./../libs/trigger-menu-item/index.vue')['default']
     MWaterfall: typeof import('./../libs/waterfall/index.vue')['default']
   }
 }

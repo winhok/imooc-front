@@ -25,29 +25,55 @@ export const useUserStore = defineStore('user', () => {
   const pendingOAuthRegistration = shallowRef<OAuthIdentity | null>(null)
   const isProfileLoading = shallowRef(false)
   const hasInitialized = shallowRef(false)
+  const sessionEpoch = shallowRef(0)
+  let profileLoadPromise: Promise<UserProfile | null> | null = null
 
-  const isAuthenticated = computed(() => token.value.length > 0)
+  const isAuthenticated = computed(() => token.value.length > 0 && profile.value !== null)
 
   function clearSession() {
+    sessionEpoch.value += 1
     token.value = ''
     profile.value = null
     pendingOAuthRegistration.value = null
   }
 
-  async function loadProfile(signal?: AbortSignal) {
-    if (!token.value || isProfileLoading.value) {
-      return profile.value
+  function commitSession(nextToken: string, nextProfile: UserProfile) {
+    sessionEpoch.value += 1
+    token.value = nextToken
+    profile.value = nextProfile
+    pendingOAuthRegistration.value = null
+  }
+
+  function loadProfile(signal?: AbortSignal): Promise<UserProfile | null> {
+    if (!token.value) {
+      return Promise.resolve(null)
     }
 
+    if (profileLoadPromise) {
+      return profileLoadPromise
+    }
+
+    const currentToken = token.value
+    const currentEpoch = sessionEpoch.value
     isProfileLoading.value = true
 
-    try {
-      const data = await getUserProfile(signal)
-      profile.value = data
-      return data
-    } finally {
-      isProfileLoading.value = false
-    }
+    const request = getUserProfile(signal, currentToken)
+      .then((data) => {
+        if (sessionEpoch.value === currentEpoch && token.value === currentToken) {
+          profile.value = data
+        }
+
+        return data
+      })
+      .finally(() => {
+        if (profileLoadPromise === request) {
+          profileLoadPromise = null
+          isProfileLoading.value = false
+        }
+      })
+
+    profileLoadPromise = request
+    return request
   }
 
   async function login(credentials: LoginCredentials) {
@@ -62,9 +88,8 @@ export const useUserStore = defineStore('user', () => {
       throw new Error('登录接口未返回有效凭据')
     }
 
-    token.value = data.token
-    pendingOAuthRegistration.value = null
-    await loadProfile()
+    const nextProfile = await getUserProfile(undefined, data.token)
+    commitSession(data.token, nextProfile)
   }
 
   async function register(credentials: LoginCredentials) {
@@ -93,9 +118,8 @@ export const useUserStore = defineStore('user', () => {
       throw new Error('登录接口未返回有效凭据')
     }
 
-    token.value = data.token
-    pendingOAuthRegistration.value = null
-    await loadProfile()
+    const nextProfile = await getUserProfile(undefined, data.token)
+    commitSession(data.token, nextProfile)
 
     return 'authenticated' as const
   }
@@ -126,8 +150,14 @@ export const useUserStore = defineStore('user', () => {
   }
 
   async function updateProfile(nextProfile: UserProfile) {
+    const currentEpoch = sessionEpoch.value
+    const currentToken = token.value
     await updateUserProfile(nextProfile)
-    profile.value = nextProfile
+
+    if (sessionEpoch.value === currentEpoch && token.value === currentToken) {
+      profile.value = nextProfile
+    }
+
     return nextProfile
   }
 

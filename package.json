@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-s build-only check:bundle type-check",
     "preview": "vite preview",
     "build-only": "vite build",
+    "check:bundle": "node scripts/check-build-budget.mjs",
     "type-check": "vue-tsc --build",
     "type-check:ts7-ready": "vue-tsc --noEmit -p tsconfig.app.json --stableTypeOrdering && tsc --noEmit -p tsconfig.node.json --stableTypeOrdering",
     "lint": "run-s \"lint:*\"",
